@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Simple, efficient, minimal. -->
+    <!-- Minimal shell. All brains live in assets/js/*. -->
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Startpage</title>
 
-    <!-- Default theme: magenta (dark). Switch via menu or commands. -->
+    <!-- Theme variables first (colorway only), then structural layout. -->
     <link rel="stylesheet" href="./main-themes/magenta/style.css" />
+    <link rel="stylesheet" href="./assets/css/layout.css" />
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
   </head>
 
@@ -18,9 +18,7 @@
       <div class="navbar-container">
         <input type="checkbox" id="nav-toggle" />
         <div class="hamburger-lines" aria-hidden="true">
-          <span class="line line1"></span>
-          <span class="line line2"></span>
-          <span class="line line3"></span>
+          <span class="line line1"></span><span class="line line2"></span><span class="line line3"></span>
         </div>
 
         <ul class="menu-items" id="theme-menu">
@@ -31,44 +29,40 @@
           <li><a href="#" data-theme="amber">amber</a></li>
           <li><a href="#" data-theme="lime">lime</a></li>
 
-          <!-- Profiles header (items injected from profiles.json) -->
+          <!-- Profiles will be injected here -->
           <li class="menu-divider" aria-hidden="true"></li>
           <li class="menu-heading">Profiles</li>
-          <!-- JS injects: <li><a href="#" data-profile="default">Default</a></li> -->
         </ul>
       </div>
     </nav>
 
     <div class="wrapper">
-      <!-- Current profile badge -->
-      <div id="profile-badge" class="profile-badge" aria-live="polite">// profile: <span>loading…</span></div>
+      <!-- Current profile badge (updated by JS) -->
+      <div id="profile-badge" class="profile-badge">// profile: <span>loading…</span></div>
 
       <!-- Clocks -->
       <div id="clocks" aria-live="polite"></div>
 
-      <!-- Main card -->
+      <!-- Main card: links + command bar -->
       <div class="maincard" role="region" aria-label="Startpage">
         <div class="content">
-          <!-- Links load from links-<profile>.json. Each section becomes a column. -->
           <div id="links" class="links"></div>
         </div>
 
-        <!-- Command/Search bar -->
         <div class="search" role="search">
           <form id="search-form" autocomplete="off">
             <label for="search_box">&gt; find /</label>
             <input
               type="text"
-              placeholder="Type labels, URLs, IPs or >commands"
-              name="search_box"
               id="search_box"
+              name="search_box"
               inputmode="search"
               aria-label="Find or command"
               autocomplete="off"
+              placeholder="the world at your fingertips"
             />
           </form>
           <small>Shell: <code>ls</code> <code>pwd</code> <code>cd &lt;profile&gt;</code> <code>labels</code> <code>theme &lt;name&gt;</code> <code>date</code> · Notes: <code>note</code>/<code>cat notes</code>/<code>rm notes</code></small>
-          <!-- Autocomplete list -->
           <div id="cmd-hints" role="listbox" aria-label="Command suggestions" style="display:none"></div>
         </div>
       </div>
@@ -81,634 +75,7 @@
       <textarea id="scratch" rows="6" placeholder="Saved locally in this browser…"></textarea>
     </section>
 
-    <script>
-      /* ========= Helpers ========= */
-      const $ = (q) => document.querySelector(q);
-      const searchInput = $("#search_box");
-
-      /* ========= Theme Loader ========= */
-      const themes = ["magenta", "light", "cyan", "amber", "lime"];
-      const defaultTheme = localStorage.getItem("selected-theme") || "magenta";
-      themes.forEach((theme) => {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = `./main-themes/${theme}/style.css`;
-        link.classList.add(`theme-${theme}`);
-        link.disabled = theme !== defaultTheme;
-        document.head.appendChild(link);
-      });
-      function changeCSS(theme) {
-        themes.forEach((t) => {
-          const el = document.querySelector(`.theme-${t}`);
-          if (el) el.disabled = t !== theme;
-        });
-        localStorage.setItem("selected-theme", theme);
-      }
-      document.getElementById("theme-menu")?.addEventListener("click", (e) => {
-        const a = e.target.closest("a"); if (!a) return;
-        const theme = a.getAttribute("data-theme");
-        const prof  = a.getAttribute("data-profile");
-        if (theme) { e.preventDefault(); changeCSS(theme); searchInput?.focus(); }
-        if (prof)  { e.preventDefault(); setProfile(prof); }
-      });
-
-      /* ========= Profiles ========= */
-      let PROFILES = [];                 // [{id,label,theme?,timezones?,default?}]
-      const PROFILE_KEY = "profile";
-      let ACTIVE_PROFILE = null;
-      let LAST_PROFILE = null;           // for `cd -`
-      const profileBadge = $("#profile-badge");
-
-      async function getJSON(url) {
-        const res = await fetch(url, { cache: "no-cache" });
-        if (!res.ok) throw new Error(`Fetch ${url} -> ${res.status}`);
-        return res.json();
-      }
-      async function loadProfiles() {
-        try {
-          const data = await getJSON("./profiles.json");
-          PROFILES = Array.isArray(data.profiles)
-            ? data.profiles.map(p => ({...p, id: String(p.id||"").toLowerCase(), label: p.label || String(p.id||"").toLowerCase()}))
-            : [];
-        } catch {
-          PROFILES = [{ id: "default", label: "Default", default: true }];
-        }
-      }
-      function pickInitialProfile() {
-        const byId = (id) => PROFILES.find(p => p.id === id);
-        const params = new URLSearchParams(location.search);
-        const qp = (params.get("profile") || "").toLowerCase();
-        const stored = (localStorage.getItem(PROFILE_KEY) || "").toLowerCase();
-        if (qp && byId(qp)) ACTIVE_PROFILE = qp;
-        else if (stored && byId(stored)) ACTIVE_PROFILE = stored;
-        else ACTIVE_PROFILE = (PROFILES.find(p => p.default) || PROFILES[0]).id;
-        localStorage.setItem(PROFILE_KEY, ACTIVE_PROFILE);
-      }
-      function setProfile(profileId) {
-        localStorage.setItem(PROFILE_KEY, profileId);
-        const params = new URLSearchParams(location.search);
-        params.set("profile", profileId);
-        location.search = params.toString(); // reload
-      }
-      function renderProfileMenu() {
-        const menu = document.getElementById("theme-menu");
-        if (!menu) return;
-        [...menu.querySelectorAll('a[data-profile]')].forEach(a => a.parentElement.remove());
-        const anchor = menu.querySelector(".menu-heading") || menu.lastElementChild;
-        PROFILES.forEach(p => {
-          const li = document.createElement("li");
-          const a  = document.createElement("a");
-          a.href = "#"; a.setAttribute("data-profile", p.id);
-          a.textContent = p.label + (p.id === ACTIVE_PROFILE ? " (current)" : "");
-          if (p.id === ACTIVE_PROFILE) a.classList.add("profile-current");
-          li.appendChild(a); anchor.parentNode.insertBefore(li, anchor.nextSibling);
-        });
-      }
-      function updateProfileBadge() {
-        const p = PROFILES.find(x => x.id === ACTIVE_PROFILE);
-        const text = p ? `${p.label} (${p.id})` : ACTIVE_PROFILE;
-        profileBadge.querySelector("span").textContent = text;
-      }
-
-      /* ========= Clocks ========= */
-      const clocks  = $("#clocks");
-      const timezones = ["Europe/London", "Europe/Berlin"]; // overridden by profile/link JSON
-      function renderClocks() {
-        if (!clocks) return;
-        clocks.innerHTML = "";
-        timezones.forEach(tz => {
-          const div = document.createElement("div");
-          div.className = "clock"; div.dataset.tz = tz;
-          clocks.appendChild(div);
-        });
-        updateClocks();
-      }
-      let clockTimer;
-      function updateClocks() {
-        const now = new Date();
-        clocks.querySelectorAll(".clock").forEach(el => {
-          const tz = el.dataset.tz;
-          try {
-            const t = new Intl.DateTimeFormat("en-GB",{timeZone: tz, hour: "2-digit", minute:"2-digit", second:"2-digit"}).format(now);
-            el.textContent = `${tz}: ${t}`;
-          } catch { el.textContent = `${tz}: [invalid tz]`; }
-        });
-      }
-
-      /* ========= Scratchpad ========= */
-      const scratch = $("#scratch");
-      if (scratch) {
-        scratch.value = localStorage.getItem("scratchpad") || "";
-        scratch.addEventListener("input", () => localStorage.setItem("scratchpad", scratch.value));
-      }
-
-      /* ========= Links / Labels ========= */
-      let LINK_ALIASES = {};                        // label -> href (lowercase key)
-      const HOST_SUFFIXES = ["local", "lan"];       // treat as hostnames
-
-      function buildQuickAliases() {
-        LINK_ALIASES = {};
-        document.querySelectorAll("#links a").forEach(a => {
-          const label = (a.textContent || "").trim().toLowerCase();
-          if (label && a.href) LINK_ALIASES[label] = a.href;
-        });
-      }
-
-      async function loadLinksByProfile() {
-        // defaults from profiles.json
-        const active = PROFILES.find(p => p.id === ACTIVE_PROFILE);
-        if (active?.theme) changeCSS(active.theme);
-        if (Array.isArray(active?.timezones) && active.timezones.length) {
-          timezones.splice(0, timezones.length, ...active.timezones);
-          renderClocks(); if (clockTimer) clearInterval(clockTimer);
-          clockTimer = setInterval(updateClocks, 1000);
-        }
-        updateProfileBadge();
-
-        // links JSON
-        const file = `./links-${ACTIVE_PROFILE.toLowerCase()}.json`;
-        try {
-          const data = await getJSON(file);
-          applyFileMeta(data);
-          renderLinks(data);
-        } catch {
-          const data = await getJSON("./links-default.json");
-          applyFileMeta(data);
-          renderLinks(data);
-        }
-      }
-      function applyFileMeta(data) {
-        if (data.title) document.title = data.title;
-        if (data.theme) changeCSS(data.theme); // link file wins
-        if (Array.isArray(data.timezones) && data.timezones.length) {
-          timezones.splice(0, timezones.length, ...data.timezones);
-          renderClocks(); if (clockTimer) clearInterval(clockTimer);
-          clockTimer = setInterval(updateClocks, 1000);
-        }
-      }
-      function renderLinks(data) {
-        const container = $("#links"); if (!container) return;
-        const sections = Array.isArray(data.sections) ? data.sections : [];
-        const frag = document.createDocumentFragment();
-
-        for (const s of sections) {
-          const sec = document.createElement("section");
-          const h3  = document.createElement("h3");
-          const rawTitle = s.title || "Links";
-          const displayTitle = rawTitle.trim().startsWith("//") ? rawTitle.trim() : `// ${rawTitle.trim()}`;
-          h3.textContent = displayTitle;
-          const ul  = document.createElement("ul");
-
-          (Array.isArray(s.items) ? s.items : []).forEach(it => {
-            const li = document.createElement("li");
-            const a  = document.createElement("a");
-            a.href = it.url || "#"; a.textContent = it.label || it.url || "link";
-            li.appendChild(a); ul.appendChild(li);
-          });
-
-          sec.appendChild(h3);
-          sec.appendChild(ul);
-          frag.appendChild(sec);
-        }
-
-        container.innerHTML = "";
-        container.appendChild(frag);
-        buildQuickAliases(); // build label->URL map
-      }
-
-      /* ========= Navigation helpers ========= */
-      function openSmart(s) {
-        const RE_URL = /^(((http|https):\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(\/\S*)?$/;
-        const RE_IP  = /^(((http|https):\/\/)?((\d{1,3}\.){3}\d{1,3}|localhost))(:(\d{1,5}))?(\/\S*)?$/;
-        const str = s.trim();
-        if (!str) return;
-        if (RE_URL.test(str)) { window.location.href = str.startsWith("http") ? str : "https://" + str; return; }
-        if (RE_IP.test(str))  { window.location.href = str.startsWith("http") ? str : "http://"  + str; return; }
-        const m = str.toLowerCase().match(/^([a-z0-9-]+)\.(\w+)$/i);
-        if (m && HOST_SUFFIXES.includes((m[2]||"").toLowerCase())) { window.location.href = "http://" + str; return; }
-        window.location.href = "https://duckduckgo.com/?q=" + encodeURIComponent(str);
-      }
-
-      /* ========= Modal ========= */
-      function htmlEscape(s){ return (s||"").replace(/[&<>"]/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
-      function monospaceBlock(text){ return `<pre class="modal-pre">${htmlEscape(text)}</pre>`; }
-      function clearCommandLine(){ const i = document.getElementById("search_box"); if (i) i.value = ""; }
-
-      function showModal(title, html) {
-        const overlay = document.createElement("div");
-        overlay.className = "modal-overlay";
-        overlay.innerHTML = `
-          <div class="modal-window" role="dialog" aria-modal="true" aria-label="${htmlEscape(title)}">
-            <button class="modal-close" aria-label="Close">×</button>
-            <h3 class="modal-title">${htmlEscape(title)}</h3>
-            <div class="modal-body">${html}</div>
-            <div class="modal-actions"><button class="modal-ok">OK</button></div>
-          </div>`;
-        document.body.appendChild(overlay);
-        const close = () => { overlay.remove(); clearCommandLine(); searchInput?.focus(); };
-        overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
-        overlay.querySelector(".modal-close").addEventListener("click", close);
-        overlay.querySelector(".modal-ok").addEventListener("click", close);
-        const onEsc = (e)=>{ if (e.key === "Escape") { e.preventDefault(); close(); window.removeEventListener("keydown", onEsc); } };
-        window.addEventListener("keydown", onEsc);
-        overlay.querySelector(".modal-ok").focus();
-      }
-
-      /* ========= Info helpers ========= */
-      function showProfiles() {
-        const lines = PROFILES.map(p => `${p.id} — ${p.label}${p.id===ACTIVE_PROFILE ? "  (current)" : ""}`);
-        showModal("Profiles", monospaceBlock(lines.join("\n")));
-      }
-      function showDate() {
-        const now = new Date();
-        const out = timezones.map(tz => {
-          try {
-            const t = new Intl.DateTimeFormat("en-GB",{ timeZone: tz, hour: "2-digit", minute:"2-digit", second:"2-digit" }).format(now);
-            return `${tz}: ${t}`;
-          } catch { return `${tz}: [invalid tz]`; }
-        });
-        showModal("Time", monospaceBlock(out.join("\n")));
-      }
-      function showNotes() { showModal("Notes", monospaceBlock(scratch?.value || "(empty)")); }
-      function showLabels(filterText = "") {
-        const keys = Object.keys(LINK_ALIASES).sort((a,b)=>a.localeCompare(b));
-        const list = filterText
-          ? keys.filter(k => k.includes(filterText.toLowerCase()))
-          : keys;
-        const lines = list.length
-          ? list.map(k => `${k}  ->  ${LINK_ALIASES[k]}`).join("\n")
-          : "(no labels)";
-        showModal("Labels", monospaceBlock(lines));
-      }
-
-      /* ========= Timezone command ========= */
-      function tzCmd(sub, zone) {
-        switch ((sub||"").toLowerCase()) {
-          case "add":
-            if (!zone) return showModal("tz add", "Usage: <code>tz add &lt;IANA_tz&gt;</code>");
-            if (!timezones.includes(zone)) timezones.push(zone);
-            renderClocks(); break;
-          case "rm":
-          case "remove":
-            if (!zone) return showModal("tz rm", "Usage: <code>tz rm &lt;IANA_tz&gt;</code>");
-            { const i = timezones.indexOf(zone); if (i >= 0) timezones.splice(i,1); }
-            renderClocks(); break;
-          case "ls":
-          case "list":
-            showModal("Timezones", monospaceBlock(timezones.join("\n") || "(none)")); break;
-          default:
-            showModal("tz", "Usage: <code>tz add &lt;IANA_tz&gt;</code> · <code>tz rm &lt;IANA_tz&gt;</code> · <code>tz ls</code>");
-        }
-      }
-
-      /* ========= Commands ========= */
-      function runCommand(line) {
-        const raw = line.slice(1).trim();               // remove '>'
-        if (!raw) { clearCommandLine(); return; }
-        const parts = raw.split(/\s+/);
-        const cmd = parts[0].toLowerCase();
-        const rest = parts.slice(1);
-        const arg  = rest.join(" ");
-
-        switch (cmd) {
-          case "help":
-            showModal("Help", monospaceBlock([
-              "Profiles:",
-              "  ls                   - list profiles",
-              "  pwd                  - show current profile",
-              "  cd <name>|-          - change profile (cd - jumps back)",
-              "",
-              "Links:",
-              "  labels [filter]      - list link labels (optionally filter)",
-              "  ls labels            - same as `labels`",
-              "  ls links             - list link sections",
-              "",
-              "Themes:",
-              "  theme <name>         - switch theme",
-              "",
-              "Time:",
-              "  date                 - show current times",
-              "  tz add <IANA>        - add timezone",
-              "  tz rm  <IANA>        - remove timezone",
-              "  tz ls                - list timezones",
-              "",
-              "Notes:",
-              "  note <text>          - append to scratchpad",
-              "  cat  notes           - view scratchpad",
-              "  rm   notes           - clear scratchpad",
-              "",
-              "Search:",
-              "  g|ddg|yt|r|hn <q>    - shortcuts",
-              "  (typing URLs/IPs/labels/queries works without 'open')"
-            ].join("\n"))); break;
-
-          case "ls":
-            if (!rest.length || rest[0] === "profiles")      showProfiles();
-            else if (rest[0] === "tz" || rest[0] === "time") tzCmd("ls");
-            else if (rest[0] === "links") {
-              const secs = [...document.querySelectorAll("#links section h3")].map(h => h.textContent.trim());
-              showModal("Link Sections", monospaceBlock(secs.map((t,i)=>`${i+1}. ${t}`).join("\n") || "(none)"));
-            } else if (rest[0] === "labels") {
-              showLabels(rest.slice(1).join(" "));
-            } else {
-              showModal("ls", "Try <code>ls</code> | <code>ls tz</code> | <code>ls links</code> | <code>ls labels</code>");
-            } break;
-
-          case "pwd":
-            showModal("Current profile", monospaceBlock(ACTIVE_PROFILE)); break;
-
-          case "cd": {
-            const target = (rest[0]||"").toLowerCase();
-            if (!target) { showModal("cd", "Usage: <code>cd &lt;profile&gt;</code> or <code>cd -</code>"); break; }
-            if (target === "-") {
-              if (!LAST_PROFILE) { showModal("cd", "No previous profile."); break; }
-              const cur = ACTIVE_PROFILE; setProfile(LAST_PROFILE); LAST_PROFILE = cur; break;
-            }
-            const match = PROFILES.find(p => p.id === target);
-            if (!match) { showModal("cd", `Unknown profile: <b>${htmlEscape(target)}</b>`); break; }
-            LAST_PROFILE = ACTIVE_PROFILE; setProfile(match.id); break;
-          }
-
-          case "theme":
-            if (!rest.length) { showModal("theme", "Usage: <code>theme &lt;name&gt;</code>"); break; }
-            if (!themes.includes(rest[0])) { showModal("theme", `Unknown theme: <b>${htmlEscape(rest[0])}</b>`); break; }
-            changeCSS(rest[0]); break;
-
-          case "date": showDate(); break;
-          case "tz":  tzCmd(rest[0], rest.slice(1).join(" ")); break;
-          case "labels": showLabels(rest.join(" ")); break;
-
-          case "note":
-            if (!scratch) break;
-            if (!arg) { showModal("note", "Usage: <code>note &lt;text&gt;</code>"); break; }
-            scratch.value += (scratch.value ? "\n" : "") + arg;
-            localStorage.setItem("scratchpad", scratch.value); break;
-
-          case "cat":
-            if (rest[0] === "notes") showNotes();
-            else showModal("cat", "Usage: <code>cat notes</code>");
-            break;
-
-          case "rm":
-          case "clear":
-            if (rest.join(" ") === "notes") { if (scratch) { scratch.value = ""; localStorage.removeItem("scratchpad"); } }
-            else showModal(cmd, "Usage: <code>rm notes</code>");
-            break;
-
-          case "g": case "ddg": case "yt": case "r": case "hn": {
-            const map = {
-              g:   (q)=>`https://www.google.com/search?q=${encodeURIComponent(q)}`,
-              ddg: (q)=>`https://duckduckgo.com/?q=${encodeURIComponent(q)}`,
-              yt:  (q)=>`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
-              r:   (q)=>`https://www.reddit.com/search/?q=${encodeURIComponent(q)}`,
-              hn:  (q)=>`https://hn.algolia.com/?q=${encodeURIComponent(q)}`
-            };
-            if (!arg) { showModal(cmd, `Usage: <code>${cmd} &lt;query&gt;</code>`); break; }
-            window.location.href = map[cmd](arg);
-            break;
-          }
-
-          default:
-            showModal("Unknown command", `No such command: <b>${htmlEscape(cmd)}</b>. Try <code>help</code>.`);
-        }
-
-        // always clear the command line after a command
-        clearCommandLine();
-      }
-
-      /* ========= Autocomplete / Hints ========= */
-      function initCommandHints() {
-        const input = document.getElementById("search_box");
-        const hints = document.getElementById("cmd-hints");
-        if (!input || !hints) return;
-
-        let items = [];  // [{label, replace}]
-        let sel = -1;
-
-        function hide(){ hints.style.display = "none"; sel = -1; items = []; hints.innerHTML=""; }
-        function show(){ hints.style.display = items.length ? "block" : "none"; }
-        function render(){ hints.innerHTML = items.map((it,i)=>`<div class="hint${i===sel?' active':''}" role="option">${htmlEscape(it.label)}</div>`).join(""); }
-        function move(delta){ if (!items.length) return; sel = (sel + delta + items.length) % items.length; render(); }
-        function apply(selected){
-          const it = selected ?? items[sel];
-          if (!it) return;
-          input.value = ">" + it.replace;
-          if (!it.replace.endsWith(" ")) {
-            runCommand(input.value);
-            clearCommandLine();
-            hide();
-            return;
-          }
-          input.focus();
-          input.setSelectionRange(input.value.length, input.value.length);
-          show();
-        }
-
-        function baseSuggestions(tok){
-          const first = tok.split(/\s+/)[0].toLowerCase();
-          const pool = [
-            "help","ls ","pwd","cd ","cd -","labels","labels ",
-            "theme ","date","tz ","tz ls","tz add ","tz rm ","note ","cat notes","rm notes"
-          ];
-          pool.push("g ","ddg ","yt ","r ","hn ");
-          return pool.filter(s => s.startsWith(first)).map(s => ({ label: s, replace: s }));
-        }
-        function suggestionsFor(tok){
-          const [cmd, ...rest] = tok.trim().split(/\s+/);
-          const arg = rest.join(" ");
-          const out = [];
-          if (!cmd) return baseSuggestions("");
-
-          switch (cmd) {
-            case "cd":
-              PROFILES.forEach(p => { if (!arg || p.id.startsWith(arg.toLowerCase())) out.push({label:`cd ${p.id}`, replace:`cd ${p.id}`}); });
-              out.push({label:"cd -", replace:"cd -"});
-              break;
-            case "theme":
-              themes.forEach(t => { if (!arg || t.startsWith(arg)) out.push({label:`theme ${t}`, replace:`theme ${t}`}); });
-              break;
-            case "ls":
-              ["profiles","tz","links","labels"].forEach(k => { if (!arg || k.startsWith(arg)) out.push({label:`ls ${k}`, replace:`ls ${k}`}); });
-              break;
-            case "tz":
-              ["ls","add ","rm "].forEach(k => { if (!arg || k.startsWith(arg)) out.push({label:`tz ${k}`, replace:`tz ${k}`}); });
-              if (arg.startsWith("add ")) {
-                ["Europe/London","UTC","America/New_York","Europe/Berlin","Asia/Tokyo"].forEach(z=>{
-                  if (z.toLowerCase().includes(arg.slice(4).toLowerCase())) out.push({label:`tz add ${z}`, replace:`tz add ${z}`});
-                });
-              }
-              break;
-            case "labels": {
-              const needle = arg.toLowerCase();
-              // suggest existing labels, filtered
-              Object.keys(LINK_ALIASES).forEach(k => {
-                if (!needle || k.includes(needle)) out.push({label:`labels ${k}`, replace:`labels ${k}`});
-              });
-              break;
-            }
-            default:
-              return baseSuggestions(tok);
-          }
-          return out.length ? out : baseSuggestions(tok);
-        }
-
-        input.addEventListener("input", () => {
-          const v = input.value.trimStart();
-          if (!v.startsWith(">")) { hide(); return; }
-          const tok = v.slice(1);
-          items = suggestionsFor(tok);
-          sel = items.length ? 0 : -1;
-          render(); show();
-        });
-
-        input.addEventListener("keydown", (e) => {
-          const active = hints.style.display === "block";
-          if (e.key === "ArrowDown" && active) { e.preventDefault(); move(1); }
-          else if (e.key === "ArrowUp"   && active) { e.preventDefault(); move(-1); }
-          else if (e.key === "Tab"       && active) { e.preventDefault(); apply(); }
-          else if (e.key === "Enter"     && active && sel >= 0) { e.preventDefault(); apply(); }
-          else if (e.key === "Escape"    && active) { e.preventDefault(); hide(); clearCommandLine(); }
-        });
-
-        hints.addEventListener("mousedown", (e) => {
-          const el = e.target.closest(".hint"); if (!el) return;
-          const idx = [...hints.children].indexOf(el);
-          sel = idx; apply();
-        });
-
-        // Also clear on plain Esc while focused in the input (even if hints are closed)
-        input.addEventListener("keydown", (e) => {
-          if (e.key === "Escape" && hints.style.display !== "block") { clearCommandLine(); }
-        });
-
-        // hide on blur
-        input.addEventListener("blur", () => setTimeout(hide, 150));
-      }
-
-      /* ========= Search (no 'open' needed) ========= */
-      const GLOBAL_SHORTCUTS = {
-        g:(q)=>`https://www.google.com/search?q=${encodeURIComponent(q)}`,
-        ddg:(q)=>`https://duckduckgo.com/?q=${encodeURIComponent(q)}`,
-        yt:(q)=>`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
-        r:(q)=>`https://www.reddit.com/search/?q=${encodeURIComponent(q)}`,
-        hn:(q)=>`https://hn.algolia.com/?q=${encodeURIComponent(q)}`
-      };
-      const RE_URL = /^(((http|https):\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(\/\S*)?$/;
-      const RE_IP  = /^(((http|https):\/\/)?((\d{1,3}\.){3}\d{1,3}|localhost))(:(\d{1,5}))?(\/\S*)?$/;
-
-      function navigate(url){ window.location.href = url; }
-      function handleSearch(raw){
-        const text = raw.trim(); if (!text) return;
-
-        // Commands start with '>'
-        if (text.startsWith(">")) { runCommand(text); return; }
-
-        // Shortcuts first (g/ddg/yt/r/hn)
-        const [key, ...rest] = text.split(/\s+/);
-        const q = rest.join(" ");
-        if (GLOBAL_SHORTCUTS[key]) { navigate(GLOBAL_SHORTCUTS[key](q)); return; }
-
-        // Exact or unique label match -> navigate
-        const lower = text.toLowerCase();
-        if (LINK_ALIASES[lower]) { navigate(LINK_ALIASES[lower]); return; }
-        const aliasMatches = Object.keys(LINK_ALIASES).filter(k => k.includes(lower));
-        if (aliasMatches.length === 1) { navigate(LINK_ALIASES[aliasMatches[0]]); return; }
-
-        // URL / IP detection
-        if (RE_URL.test(text)) { navigate(text.startsWith("http") ? text : "https://" + text); return; }
-        if (RE_IP.test(text))  { navigate(text.startsWith("http") ? text : "http://"  + text); return; }
-
-        // .local / .lan hostnames
-        const m = lower.match(/^([a-z0-9-]+)\.(\w+)$/i);
-        if (m && ["local","lan"].includes((m[2]||"").toLowerCase())) { navigate("http://" + text); return; }
-
-        // Default: search
-        navigate(`https://duckduckgo.com/?q=${encodeURIComponent(text)}`);
-      }
-
-      /* ========= Init ========= */
-      document.addEventListener("DOMContentLoaded", async () => {
-        // clocks
-        renderClocks(); if (clockTimer) clearInterval(clockTimer);
-        clockTimer = setInterval(updateClocks, 1000);
-
-        // autofocus + shortcuts
-        searchInput?.focus(); searchInput?.select();
-        $("#search-form")?.addEventListener("submit", (e)=>{ e.preventDefault(); handleSearch(searchInput.value); });
-        window.addEventListener("keydown", (e) => {
-          if (e.key === "/" && document.activeElement !== searchInput) { e.preventDefault(); searchInput?.focus(); searchInput?.select(); }
-        });
-
-        // profiles + links
-        await loadProfiles();
-        pickInitialProfile();
-        renderProfileMenu();
-        updateProfileBadge();
-        await loadLinksByProfile();
-
-        // command UX
-        initCommandHints();
-      });
-    </script>
-
-    <!-- Minimal UI styles for modal & hints.
-         You can move these into each theme later if you prefer. -->
-    <style>
-      .profile-badge {
-        width: min(95vw, var(--container-max-w, 1200px));
-        margin: 72px auto 8px; padding: 6px 10px;
-        color: var(--text, #eaeaea);
-        background: rgba(0,0,0,0.6);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-left: 3px solid var(--accent, #00ffff);
-        border-radius: 8px;
-        font-weight: 700;
-      }
-      .search { position: relative; }
-      #cmd-hints{
-        position: absolute; left: 0; top: calc(100% + 6px);
-        min-width: 280px; max-width: 90vw;
-        background: rgba(0,0,0,0.85);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-left: 3px solid var(--accent, #00ffff);
-        border-radius: 8px; padding: 6px 0; z-index: 40;
-        backdrop-filter: blur(6px);
-      }
-      #cmd-hints .hint{
-        padding: 6px 10px; font-size: 14px; color: var(--text, #eaeaea);
-        cursor: default; white-space: nowrap;
-      }
-      #cmd-hints .hint:hover, #cmd-hints .hint.active{
-        background: rgba(255,255,255,0.06);
-        color: var(--accent, #00ffff);
-      }
-      .modal-overlay{
-        position: fixed; inset: 0; z-index: 50;
-        background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
-        display: grid; place-items: center;
-      }
-      .modal-window{
-        width: min(92vw, 720px);
-        background: rgba(0,0,0,0.92);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-left: 4px solid var(--accent, #00ffff);
-        border-radius: 12px; padding: 14px 16px 12px;
-        color: var(--text, #eaeaea);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-        position: relative;
-      }
-      .modal-title{ font-weight: 700; margin: 0 0 8px 0; color: var(--accent, #00ffff); }
-      .modal-pre{ background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 8px; overflow: auto; }
-      .modal-body{ font-size: 14px; line-height: 1.35; }
-      .modal-actions{ display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
-      .modal-actions .modal-ok{
-        background: var(--accent, #00ffff);
-        color: #000; border: 0; padding: 6px 12px; border-radius: 8px; font-weight: 700; cursor: pointer;
-      }
-      .modal-close{
-        position: absolute; top: 8px; right: 10px; border: 0; background: transparent;
-        color: var(--text, #eaeaea); font-size: 20px; cursor: pointer;
-      }
-    </style>
+    <!-- Bootstrap the app -->
+    <script type="module" src="./assets/js/main.js"></script>
   </body>
 </html>
