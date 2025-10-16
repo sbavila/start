@@ -1,4 +1,7 @@
 {
+  "title": "Startpage – Default",
+  "theme": "Purple",
+  "timezones": ["Europe/London", "Europe/Berlin"],
   "sections": [
     {
       "title": "Productivity",
@@ -6,7 +9,7 @@
         { "label": "Sheets",   "url": "https://docs.google.com/spreadsheets/u/0" },
         { "label": "Docs",     "url": "https://docs.google.com/document/u/0" },
         { "label": "Calendar", "url": "https://calendar.google.com/calendar/u/0/r" },
-        { "label": "ChatGPT",  "url": "https://chatgpt.com/" }
+        { "label": "Chat GPT", "url": "https://chatgpt.com/" }
       ]
     },
     {
@@ -25,9 +28,9 @@
     {
       "title": "Downtime",
       "items": [
-        { "label": "Reddit",      "url": "https://www.reddit.com/" },
-        { "label": "Hacker News", "url": "https://news.ycombinator.com/" },
-        { "label": "Discord",     "url": "https://discord.com/app" }
+        { "label": "Reddit",       "url": "https://www.reddit.com/" },
+        { "label": "Hacker News",  "url": "https://news.ycombinator.com/" },
+        { "label": "Discord",      "url": "https://discord.com/app" }
       ]
     },
     {

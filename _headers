@@ -1,2 +1,8 @@
-/links.json
+/profiles.json
+  Cache-Control: no-cache
+
+/links-*.json
+  Cache-Control: no-cache
+
+/links-default.json
   Cache-Control: no-cache

@@ -383,3 +383,65 @@ form label[for="search_box"] {
   #clocks > div { min-width: 160px; }
 }
 
+/* --- Minimal additions for profiles + polish --- */
+
+/* Accessibility helper */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap; border: 0; padding: 0; margin: -1px;
+}
+
+/* Menu cosmetics for the injected Profiles block */
+.menu-divider {
+  margin: 8px 0;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  list-style: none;
+  height: 0;
+}
+.menu-heading {
+  color: var(--background-color);
+  opacity: 0.9;
+  font-weight: 600;
+  list-style: none;
+}
+
+/* Current profile highlight */
+.profile-current {
+  font-weight: 700;
+  color: var(--link-hover);
+}
+
+/* Clocks (if your base CSS doesn’t already define them) */
+#clocks {
+  display: flex;
+  gap: 10px 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin: 0 0 12px 0;
+}
+#clocks .clock {
+  font-size: 14px;
+  line-height: 1.2;
+  color: aliceblue;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-left: 3px solid var(--background-color);
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-width: 180px;
+  transition: transform .08s ease, box-shadow .15s ease, border-color .15s ease;
+  backdrop-filter: blur(2px);
+}
+#clocks .clock:hover {
+  border-color: var(--link-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,.25);
+}
+
+/* (Optional) fixed-width scratchpad if not already present */
+/*
+.scratchpad { width: 700px; margin: 20px auto; }
+#scratch { width: 100%; }
+*/

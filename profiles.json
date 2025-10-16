@@ -1,0 +1,7 @@
+{
+  "profiles": [
+    { "id": "default", "label": "Default",   "theme": "purple",   "timezones": ["Europe/London"], "default": true },
+    { "id": "reh",     "label": "Rehearsal", "theme": "orange", "timezones": ["Europe/London","UTC"] },
+    { "id": "tour",    "label": "Tour",      "theme": "violet", "timezones": ["UTC","America/New_York"] }
+  ]
+}
