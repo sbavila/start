@@ -1,0 +1,40 @@
+{
+  "sections": [
+    {
+      "title": "Productivity",
+      "items": [
+        { "label": "Sheets",   "url": "https://docs.google.com/spreadsheets/u/0" },
+        { "label": "Docs",     "url": "https://docs.google.com/document/u/0" },
+        { "label": "Calendar", "url": "https://calendar.google.com/calendar/u/0/r" },
+        { "label": "ChatGPT",  "url": "https://chatgpt.com/" }
+      ]
+    },
+    {
+      "title": "Current Show",
+      "items": [
+        { "label": "MTX-001", "url": "http://10.11.11.31" },
+        { "label": "MTX-002", "url": "http://10.11.11.32" },
+        { "label": "PRJ-101", "url": "http://10.11.11.101" },
+        { "label": "PRJ-102", "url": "http://10.11.11.102" },
+        { "label": "PRJ-201", "url": "http://10.11.11.103" },
+        { "label": "PRJ-301", "url": "http://10.11.11.104" },
+        { "label": "NWS-001", "url": "http://10.11.11.241" },
+        { "label": "NWS-901", "url": "http://10.11.11.242" }
+      ]
+    },
+    {
+      "title": "Downtime",
+      "items": [
+        { "label": "Reddit",      "url": "https://www.reddit.com/" },
+        { "label": "Hacker News", "url": "https://news.ycombinator.com/" },
+        { "label": "Discord",     "url": "https://discord.com/app" }
+      ]
+    },
+    {
+      "title": "Local",
+      "items": [
+        { "label": "Companion", "url": "http://127.0.0.1:8000/" }
+      ]
+    }
+  ]
+}

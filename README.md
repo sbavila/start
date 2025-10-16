@@ -1,102 +1,24 @@
-# aesthetic-startpage
-Aesthetic Startpage to boost your productivity and at the same time give your desktop a new aesthetic look.
-Here is a [Live Preview](https://nainish-startpage.netlify.app/)
+# Startpage
 
+Static start page with:
+- theme switching,
+- command/shortcut search,
+- clocks,
+- local scratchpad,
+- dynamic links via `links.json`.
 
-**NOTE!!!!!!!!!**
-We are developing a productivity SaaS platform that combines a clean, minimalist design with anime-inspired nature themes. The goal is to create a serene and engaging digital workspace that helps users streamline their tasks, organize their thoughts, and boost their overall productivity.
+## Local preview
+Use a simple static server so `fetch("./links.json")` works:
+- VS Code Live Server, or
+- `python -m http.server` (Python 3), then open http://localhost:8000
 
-**Key Features**
-Personalized start page with customizable widgets for bookmarks, notes, to-do lists, weather, and time
-Intuitive bookmark management system for saving, organizing, and accessing bookmarks
-Note-taking feature with Markdown support and a clean, minimalist interface
-Task management system with due dates, priorities, and integration with external services
-AI-powered chatbot for assistance with queries, task management, and information retrieval
-Aesthetic, modern UI with a consistent brand identity across all features
-AI-enhanced search engine for quick and relevant information retrieval
-Personal mood board 
+## Update links
+Edit `links.json` and commit. Cloudflare Pages deploy will pick it up immediately (we send `Cache-Control: no-cache` for this file).
 
-**Design Inspiration**
-The design of the SaaS platform will be inspired by minimalist aesthetics and nature-themed anime. We aim to create a clean, visually appealing interface that resonates with users who appreciate simplicity and whimsy. The color palette will be inspired by natural elements like water, leaves, and clouds, and the overall look and feel will be calming and inviting.
-Monetization
-
-**We are looking for developers, designers and dreamers**
-Suggest your ideas on what features we all can add, designs, and I welcome you all to contribute and create this ultimate opensource start space. 
-
-## Installation
-##### Method 1:
-1. Download/Clone this repository.
-2. Open folder of theme you want to use.
-3. Open index.html file using a web browser.
-4. Copy the url path from the url bar.
-5. Go to web browser's homepage settings.
-6. Select Custom url homepage and paste the url.
-
-##### Method 2:
-- Copy this Page [link](https://nainish-startpage.netlify.app/) and use it as custom url homepage
-
-### Changing-Themes 
-- You can change theme using the menu given at top-right corner.
-- You can use a specific-theme by using method-1.
-
-## Themes:
-### Purple-Mesh
-![Screenshot from 2022-10-04 22-50-35](https://user-images.githubusercontent.com/109546113/193884959-fde95cd2-fe52-4c2a-8f22-91b2bc83ed6a.png)
-### Orange
-![Screenshot from 2022-10-04 22-59-26](https://user-images.githubusercontent.com/109546113/193887457-1923a57d-879d-4145-9add-f7800960ff6f.png)
-
-### Blue
-![Screenshot from 2022-10-04 22-59-39](https://user-images.githubusercontent.com/109546113/193887481-973a2c77-909e-4f70-b49c-a9cc9c869ea1.png)
-
-### Green
-![Screenshot from 2022-10-04 22-59-52](https://user-images.githubusercontent.com/109546113/193887509-a5969dfe-17a4-429c-b337-f8d3589306d2.png)
-
-### Cherry
-![Screenshot from 2022-10-04 23-00-04](https://user-images.githubusercontent.com/109546113/193887547-87a580f8-b32d-478e-a96c-967eca69afbc.png)
-
-
-### Purple
-![Screenshot from 2022-10-04 23-00-35](https://user-images.githubusercontent.com/109546113/193887582-95498fcf-ca59-49bc-a128-960b7439ee8b.png)
-
-
-#### Feel free to make new colour themes and improvements <3
-#### Also don't forget to star the repo :)
-
-
-
-## Create new themes using template theme
-
-### Forking the Repository
-
-1. Follow [this tutorial](https://github.com/firstcontributions/first-contributions "this tutorial") till **`Create a Branch`**.
-
-### Creating a New Theme
-
-#### Using the template
-
-1. Navigate to `aesthetic-startpage\template-theme\normal` in your desktop.
-
-2. Copy all the files and folders (`index.html`, `style.css`, `images`).
-
-3. Now navigate to `aesthetic-startpage\new-themes\` in your desktop.
-
-4. Create a new folder and give it a unique theme name of your choice.
-
-5. Paste the previously copied files and folder inside the new folder you created.
-
-#### Changing the aesthetic
-
-1. Open `style.css` in your preferred ide or text editor.
-
-2. Inside `:root` change the `rgb` values for different variables.
-
-![guide](https://user-images.githubusercontent.com/90842071/194304604-9a33b75a-432f-47f7-b810-2142da53d2b5.jpg)
-
-3. If you want to add gradient, you can add it inside `.bg`
-
-4. To add new image, navigate to `images` inside the folder you created and replace the existing image with the one you want. Rename the image to `gif.gif`. If the image is not gif you can convert it by using MS Paint (save as `gif.gif`) or any other software.
-
-### Committing and Pushing the changes
-
-1. Follow rest of [this tutorial](https://github.com/firstcontributions/first-contributions "this tutorial") from where you have left.
-
+## Deploy to Cloudflare Pages
+1. Push this repo to GitHub.
+2. Cloudflare Dashboard → Pages → Create Project → Connect to Git.
+3. Framework preset: **None**.
+4. Build command: *(leave blank)*.
+5. Output directory: **/**.
+6. Save and deploy.
