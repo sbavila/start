@@ -1,6 +1,6 @@
 {
   "profiles": [
-    { "id": "default", "label": "Default",   "theme": "magenta",   "timezones": ["Europe/London"], "default": true },
+    { "id": "default", "label": "Default",   "theme": "magenta",   "timezones": ["Europe/London"], "default": true }
     
   ]
 }
