@@ -1,8 +1,38 @@
+# Default: be conservative (optional)
+# /* 
+#   Cache-Control: public, max-age=3600
+# */
+
+# Never cache HTML documents
+/               # when the server maps "/" -> index.html
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/index.html
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+# Your dynamic data files should always re-fetch
 /profiles.json
-  Cache-Control: no-cache
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 
 /links-*.json
-  Cache-Control: no-cache
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 
-/links-default.json
-  Cache-Control: no-cache
+# JS modules: cache, but require revalidation (so edits show up reliably)
+/assets/js/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Layout CSS & theme CSS: long-lived (super fast). 
+# If you change them, bump their filename or add ?v=... in index.html.
+/assets/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/main-themes/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fonts (if any)
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+# Nice-to-haves
+/* 
+  X-Content-Type-Options: nosniff
