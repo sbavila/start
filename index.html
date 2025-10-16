@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- This page is intentionally minimal. No CSS frameworks. No fluff. -->
+    <!-- Minimal, fast, and readable. -->
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Startpage</title>
 
-    <!-- Default theme: magenta on black with cyan accents -->
+    <!-- Default theme: magenta (dark). Switch from the menu or commands. -->
     <link rel="stylesheet" href="./main-themes/magenta/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
   </head>
 
   <body>
-    <!-- Hamburger menu: holds theme and profile pickers. Keep it boring, fast, and obvious. -->
+    <!-- Hamburger menu: themes + profiles -->
     <nav class="navbar" aria-label="Theme & profile selector">
       <div class="navbar-container">
         <input type="checkbox" id="nav-toggle" />
@@ -24,79 +24,74 @@
         </div>
 
         <ul class="menu-items" id="theme-menu">
-          <!-- Themes you can preload and switch to -->
-          <li><a href="#" data-theme="magenta">magenta</a></li>
-          <li><a href="#" data-theme="blue">blue</a></li>
-          <li><a href="#" data-theme="cherry">cherry</a></li>
-          <li><a href="#" data-theme="violet">violet</a></li>
-          <li><a href="#" data-theme="green">green</a></li>
-          <li><a href="#" data-theme="mesh-purple">mesh-purple</a></li>
-          <li><a href="#" data-theme="orange">orange</a></li>
-          <li><a href="#" data-theme="purple">purple</a></li>
-          <li><a href="#" data-theme="white">white</a></li>
-          <li><a href="#" data-theme="retro-gradient">retro-gradient</a></li>
-          <li><a href="#" data-theme="summer-wave">summer-wave</a></li>
-          <li><a href="#" data-theme="Animated-Gradient">animated-gradient</a></li>
+          <!-- New variants first -->
+          <li><a href="#" data-theme="magenta">magenta (dark)</a></li>
+          <li><a href="#" data-theme="light">light</a></li>
+          <li><a href="#" data-theme="cyan">cyan</a></li>
+          <li><a href="#" data-theme="amber">amber</a></li>
+          <li><a href="#" data-theme="lime">lime</a></li>
 
-          <!-- Profiles: injected dynamically from profiles.json. No hard-coding here. -->
+         
+
+          <!-- Profiles header (items injected from profiles.json) -->
           <li class="menu-divider" aria-hidden="true"></li>
           <li class="menu-heading">Profiles</li>
-          <!-- JS will append: <li><a href="#" data-profile="default">Default</a></li> etc. -->
         </ul>
       </div>
     </nav>
 
-    <!-- Clocks: show time where it matters. Fast glance, no fluff. -->
-    <div id="clocks" aria-live="polite"></div>
+    <div class="wrapper">
+      <!-- Clocks: minimal glance info -->
+      <div id="clocks" aria-live="polite"></div>
 
-    <!-- Main card: links + command bar. That’s the whole job. -->
-    <div class="maincard" role="region" aria-label="Startpage">
-      <div class="content">
-        <!-- Links are injected from links-<profile>.json. Each section becomes a column. -->
-        <div id="links" class="links"></div>
-      </div>
+      <div class="bg" aria-hidden="true"></div>
 
-      <!-- Command bar: search by default, >commands for power. -->
-      <div class="search" role="search">
-        <form id="search-form" autocomplete="off">
-          <label for="search_box">&gt; find /</label>
-          <input
-            type="text"
-            placeholder="Type here or >command"
-            name="search_box"
-            id="search_box"
-            inputmode="search"
-            aria-label="Find or command"
-            autocomplete="off"
-          />
-        </form>
-        <small>Commands: <code>&gt;profile list</code> · <code>&gt;profile switch tour</code> · <code>&gt;note …</code></small>
+      <div class="maincard" role="region" aria-label="Startpage">
+        <div class="content">
+          <!-- Sections from links-<profile>.json render here as horizontal columns -->
+          <div id="links" class="links"></div>
+        </div>
+
+        <!-- Command/Search bar -->
+        <div class="search" role="search">
+          <form id="search-form" autocomplete="off">
+            <label for="search_box">&gt; find /</label>
+            <input
+              type="text"
+              placeholder="Type here or >command"
+              name="search_box"
+              id="search_box"
+              inputmode="search"
+              aria-label="Find or command"
+              autocomplete="off"
+            />
+          </form>
+          <small>Commands: <code>&gt;profile list</code> · <code>&gt;profile switch tour</code> · <code>&gt;note …</code></small>
+        </div>
       </div>
     </div>
 
-    <!-- Scratchpad: simple local memory. 700px wide by design. -->
-    <div class="scratchpad">
+    <!-- Scratchpad: now responsive, same width as card, with a heading -->
+    <section class="scratchpad" aria-label="Scratchpad">
+      <h3 class="scratchpad-title">Scratchpad</h3>
       <label for="scratch" class="visually-hidden">Scratchpad</label>
-      <textarea id="scratch" rows="5" placeholder="Scratchpad (saved locally) — type notes here…"></textarea>
-    </div>
+      <textarea id="scratch" rows="6" placeholder="Saved locally in this browser…"></textarea>
+    </section>
 
     <script>
-      /* ===== Helper ===== */
+      /* ========= Helpers ========= */
       const $ = (q) => document.querySelector(q);
 
-      /* ===== Theme loader =====
-         We preload all themes so switching is instant.
-         If that feels wasteful, remove the ones you never use. */
-      const themes = [
-        "magenta","blue","cherry","violet","green","orange",
-        "purple","white","mesh-purple","summer-wave","retro-gradient","Animated-Gradient"
-      ];
+/* ========= Theme Loader ========= */
+const themes = ["magenta", "light", "cyan", "amber", "lime"];
+
+      // Preload all themes, only default (magenta) enabled initially
       themes.forEach((theme) => {
         const link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = `./main-themes/${theme}/style.css`;
         link.classList.add(`theme-${theme}`);
-        link.disabled = theme !== "magenta"; // magenta is the default
+        link.disabled = theme !== "magenta";
         document.head.appendChild(link);
       });
       function changeCSS(theme) {
@@ -109,17 +104,15 @@
       const savedTheme = localStorage.getItem("selected-theme");
       if (savedTheme && savedTheme !== "magenta") changeCSS(savedTheme);
 
-      // Theme & profile clicks arrive here (one listener, less surface area).
       document.getElementById("theme-menu")?.addEventListener("click", (e) => {
         const a = e.target.closest("a"); if (!a) return;
         const theme = a.getAttribute("data-theme");
         const prof  = a.getAttribute("data-profile");
         if (theme) { e.preventDefault(); changeCSS(theme); $("#search_box")?.focus(); }
-        if (prof)  { e.preventDefault(); setProfile(prof); } // page reloads with ?profile=
+        if (prof)  { e.preventDefault(); setProfile(prof); }
       });
 
-      /* ===== Profiles (manifest-driven) =====
-         profiles.json controls what shows exist. Add/remove there, not here. */
+      /* ========= Profiles manifest ========= */
       let PROFILES = [];                 // [{id,label,theme?,timezones?,default?}]
       const PROFILE_KEY = "profile";
       let ACTIVE_PROFILE = null;
@@ -129,68 +122,55 @@
         if (!res.ok) throw new Error(`Fetch ${url} -> ${res.status}`);
         return res.json();
       }
-
       async function loadProfiles() {
         try {
           const data = await getJSON("./profiles.json");
-          PROFILES = Array.isArray(data.profiles) ? data.profiles.map(p => ({ ...p, id: String(p.id||"").toLowerCase() })) : [];
+          PROFILES = Array.isArray(data.profiles) ? data.profiles.map(p => ({...p, id: String(p.id||"").toLowerCase()})) : [];
         } catch {
-          // Be boring and safe if manifest is missing.
           PROFILES = [{ id: "default", label: "Default", default: true }];
         }
       }
-
       function pickInitialProfile() {
         const byId = (id) => PROFILES.find(p => p.id === id);
         const params = new URLSearchParams(location.search);
         const qp = (params.get("profile") || "").toLowerCase();
         const stored = (localStorage.getItem(PROFILE_KEY) || "").toLowerCase();
-
         if (qp && byId(qp)) ACTIVE_PROFILE = qp;
         else if (stored && byId(stored)) ACTIVE_PROFILE = stored;
         else ACTIVE_PROFILE = (PROFILES.find(p => p.default) || PROFILES[0]).id;
-
         localStorage.setItem(PROFILE_KEY, ACTIVE_PROFILE);
       }
-
       function setProfile(profileId) {
         localStorage.setItem(PROFILE_KEY, profileId);
         const params = new URLSearchParams(location.search);
         params.set("profile", profileId);
-        location.search = params.toString(); // hard reload keeps it simple and robust
+        location.search = params.toString(); // simple and robust
       }
-
       function renderProfileMenu() {
         const menu = document.getElementById("theme-menu");
         if (!menu) return;
-
-        // Nuke old entries first.
         [...menu.querySelectorAll('a[data-profile]')].forEach(a => a.parentElement.remove());
-
         const anchor = menu.querySelector(".menu-heading") || menu.lastElementChild;
         PROFILES.forEach(p => {
           const li = document.createElement("li");
           const a  = document.createElement("a");
-          a.href = "#";
-          a.setAttribute("data-profile", p.id);
+          a.href = "#"; a.setAttribute("data-profile", p.id);
           a.textContent = p.label + (p.id === ACTIVE_PROFILE ? " (current)" : "");
           if (p.id === ACTIVE_PROFILE) a.classList.add("profile-current");
-          li.appendChild(a);
-          anchor.parentNode.insertBefore(li, anchor.nextSibling);
+          li.appendChild(a); anchor.parentNode.insertBefore(li, anchor.nextSibling);
         });
       }
 
-      /* ===== Clocks =====
-         This is fast and local. No network calls, no nonsense. */
-      const clocks = $("#clocks");
-      const timezones = ["Europe/London", "Europe/Berlin"]; // overwritten by profile if provided
+      /* ========= Clocks ========= */
+      const clocks  = $("#clocks");
+      const timezones = ["Europe/London", "Europe/Berlin"]; // overridden by profile or links JSON
       function renderClocks() {
         if (!clocks) return;
         clocks.innerHTML = "";
         timezones.forEach(tz => {
-          const d = document.createElement("div");
-          d.className = "clock"; d.dataset.tz = tz;
-          clocks.appendChild(d);
+          const div = document.createElement("div");
+          div.className = "clock"; div.dataset.tz = tz;
+          clocks.appendChild(div);
         });
         updateClocks();
       }
@@ -200,27 +180,26 @@
         clocks.querySelectorAll(".clock").forEach(el => {
           const tz = el.dataset.tz;
           try {
-            el.textContent = `${tz}: ${new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(now)}`;
+            el.textContent = `${tz}: ${new Intl.DateTimeFormat("en-GB",{timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit"}).format(now)}`;
           } catch { el.textContent = `${tz}: [invalid tz]`; }
         });
       }
 
-      /* ===== Scratchpad ===== */
+      /* ========= Scratchpad ========= */
       const scratch = $("#scratch");
       if (scratch) {
         scratch.value = localStorage.getItem("scratchpad") || "";
         scratch.addEventListener("input", () => localStorage.setItem("scratchpad", scratch.value));
       }
 
-      /* ===== Links loader (by profile) ===== */
+      /* ========= Links loader (by profile) ========= */
       async function loadLinksByProfile() {
-        // Stage 1: global defaults from profiles.json (theme/timezones)
+        // Stage 1: defaults from profiles.json
         const active = PROFILES.find(p => p.id === ACTIVE_PROFILE);
         if (active?.theme) changeCSS(active.theme);
         if (Array.isArray(active?.timezones) && active.timezones.length) {
           timezones.splice(0, timezones.length, ...active.timezones);
-          renderClocks();
-          if (clockTimer) clearInterval(clockTimer);
+          renderClocks(); if (clockTimer) clearInterval(clockTimer);
           clockTimer = setInterval(updateClocks, 1000);
         }
 
@@ -228,72 +207,55 @@
         const file = `./links-${ACTIVE_PROFILE.toLowerCase()}.json`;
         try {
           const data = await getJSON(file);
-          applyFileMeta(data);
-          renderLinks(data);
+          applyFileMeta(data); renderLinks(data);
         } catch {
           const data = await getJSON("./links-default.json");
-          applyFileMeta(data);
-          renderLinks(data);
+          applyFileMeta(data); renderLinks(data);
         }
       }
-
       function applyFileMeta(data) {
         if (data.title) document.title = data.title;
         if (data.theme) changeCSS(data.theme);
         if (Array.isArray(data.timezones) && data.timezones.length) {
           timezones.splice(0, timezones.length, ...data.timezones);
-          renderClocks();
-          if (clockTimer) clearInterval(clockTimer);
+          renderClocks(); if (clockTimer) clearInterval(clockTimer);
           clockTimer = setInterval(updateClocks, 1000);
         }
       }
-
       function renderLinks(data) {
-        const container = $("#links");
-        if (!container) return;
+        const container = $("#links"); if (!container) return;
         const sections = Array.isArray(data.sections) ? data.sections : [];
         const frag = document.createDocumentFragment();
-
         for (const s of sections) {
           const sec = document.createElement("section");
-          const h3  = document.createElement("h3");
-          h3.textContent = s.title || "Links";
+          const h3  = document.createElement("h3"); h3.textContent = s.title || "Links";
           const ul  = document.createElement("ul");
-
           (Array.isArray(s.items) ? s.items : []).forEach(it => {
             const li = document.createElement("li");
-            const a  = document.createElement("a");
-            a.href = it.url || "#"; a.textContent = it.label || it.url || "link";
+            const a  = document.createElement("a"); a.href = it.url || "#"; a.textContent = it.label || it.url || "link";
             li.appendChild(a); ul.appendChild(li);
           });
-
-          sec.appendChild(h3);
-          sec.appendChild(ul);
-          frag.appendChild(sec);
+          sec.appendChild(h3); sec.appendChild(ul); frag.appendChild(sec);
         }
-
-        container.innerHTML = "";
-        container.appendChild(frag);
+        container.innerHTML = ""; container.appendChild(frag);
       }
 
-      /* ===== Search + Commands ===== */
+      /* ========= Search & Commands ========= */
       const searchInput = $("#search_box");
       const GLOBAL_SHORTCUTS = {
-        g:   (q) => `https://www.google.com/search?q=${encodeURIComponent(q)}`,
-        ddg: (q) => `https://duckduckgo.com/?q=${encodeURIComponent(q)}`,
-        yt:  (q) => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
-        r:   (q) => `https://www.reddit.com/search/?q=${encodeURIComponent(q)}`,
-        hn:  (q) => `https://hn.algolia.com/?q=${encodeURIComponent(q)}`
+        g:(q)=>`https://www.google.com/search?q=${encodeURIComponent(q)}`,
+        ddg:(q)=>`https://duckduckgo.com/?q=${encodeURIComponent(q)}`,
+        yt:(q)=>`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
+        r:(q)=>`https://www.reddit.com/search/?q=${encodeURIComponent(q)}`,
+        hn:(q)=>`https://hn.algolia.com/?q=${encodeURIComponent(q)}`
       };
       const RE_URL = /^(((http|https):\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(\/\S*)?$/;
       const RE_IP  = /^(((http|https):\/\/)?((\d{1,3}\.){3}\d{1,3}|localhost))(:(\d{1,5}))?(\/\S*)?$/;
 
-      function navigate(url) { window.location.href = url; }
-
-      function runCommand(line) {
+      function navigate(url){ window.location.href = url; }
+      function runCommand(line){
         const [cmd, ...rest] = line.slice(1).trim().split(/\s+/);
         const arg = rest.join(" ");
-
         switch (cmd) {
           case "help":
             alert([
@@ -305,94 +267,64 @@
               ">clear-notes           — wipe scratchpad",
               ">tz add <IANA_tz>      — add timezone",
               ">tz remove <IANA_tz>   — remove timezone"
-            ].join("\n"));
-            break;
+            ].join("\n")); break;
 
           case "profile": {
-            const sub = rest[0];
-            const name = (rest.slice(1).join(" ") || "").toLowerCase();
-            if (sub === "list") {
-              alert(PROFILES.map(p => `${p.id} — ${p.label}${p.id===ACTIVE_PROFILE?" (current)":""}`).join("\n"));
-            } else if (sub === "switch") {
+            const sub = rest[0]; const name = (rest.slice(1).join(" ") || "").toLowerCase();
+            if (sub === "list") { alert(PROFILES.map(p=>`${p.id} — ${p.label}${p.id===ACTIVE_PROFILE?" (current)":""}`).join("\n")); }
+            else if (sub === "switch") {
               const target = PROFILES.find(p => p.id === name);
               if (!target) return alert(`Unknown profile: ${name}`);
               setProfile(target.id);
-            } else {
-              alert("Usage:\n>profile list\n>profile switch <id>");
-            }
+            } else alert("Usage:\n>profile list\n>profile switch <id>");
             break;
           }
 
           case "note":
-            if (!scratch) return;
+            if (!scratch) break;
             scratch.value += (scratch.value ? "\n" : "") + arg;
-            localStorage.setItem("scratchpad", scratch.value);
-            break;
+            localStorage.setItem("scratchpad", scratch.value); break;
 
-          case "notes":
-            alert(scratch?.value || "(empty)");
-            break;
+          case "notes": alert(scratch?.value || "(empty)"); break;
 
           case "clear-notes":
-            if (!scratch) return;
-            scratch.value = "";
-            localStorage.removeItem("scratchpad");
-            break;
+            if (!scratch) break;
+            scratch.value = ""; localStorage.removeItem("scratchpad"); break;
 
           case "tz": {
-            const sub = rest[0];
-            const zone = rest.slice(1).join(" ");
-            if (sub === "add" && zone) {
-              if (!timezones.includes(zone)) timezones.push(zone);
-              renderClocks();
-            } else if (sub === "remove" && zone) {
-              const i = timezones.indexOf(zone);
-              if (i >= 0) timezones.splice(i, 1);
-              renderClocks();
-            } else {
-              alert("Usage: >tz add <IANA_tz> | >tz remove <IANA_tz>");
-            }
+            const sub = rest[0]; const zone = rest.slice(1).join(" ");
+            if (sub === "add" && zone) { if (!timezones.includes(zone)) timezones.push(zone); renderClocks(); }
+            else if (sub === "remove" && zone) { const i = timezones.indexOf(zone); if (i>=0) timezones.splice(i,1); renderClocks(); }
+            else alert("Usage: >tz add <IANA_tz> | >tz remove <IANA_tz>");
             break;
           }
 
-          default:
-            alert(`Unknown command: ${cmd}. Try >help`);
+          default: alert(`Unknown command: ${cmd}. Try >help`);
         }
       }
-
-      function handleSearch(raw) {
-        const text = raw.trim();
-        if (!text) return;
-
+      function handleSearch(raw){
+        const text = raw.trim(); if (!text) return;
         if (text.startsWith(">")) { runCommand(text); return; }
-
-        const [key, ...rest] = text.split(/\s+/);
-        const q = rest.join(" ");
+        const [key, ...rest] = text.split(/\s+/); const q = rest.join(" ");
         if (GLOBAL_SHORTCUTS[key]) { navigate(GLOBAL_SHORTCUTS[key](q)); return; }
-
-        if (RE_URL.test(text)) { navigate(text.startsWith("http") ? text : "https://" + text); return; }
-        if (RE_IP.test(text))  { navigate(text.startsWith("http") ? text : "http://"  + text); return; }
-
+        if (RE_URL.test(text)) { navigate(text.startsWith("http") ? text : "https://"+text); return; }
+        if (RE_IP.test(text))  { navigate(text.startsWith("http") ? text : "http://"+text);  return; }
         navigate(`https://duckduckgo.com/?q=${encodeURIComponent(text)}`);
       }
 
-      /* ===== Init ===== */
+      /* ========= Init ========= */
       document.addEventListener("DOMContentLoaded", async () => {
-        renderClocks();
-        if (clockTimer) clearInterval(clockTimer);
+        renderClocks(); if (clockTimer) clearInterval(clockTimer);
         clockTimer = setInterval(updateClocks, 1000);
 
-        // Don’t be coy: autofocus the input.
         searchInput?.focus(); searchInput?.select();
-        $("#search-form")?.addEventListener("submit", (e) => { e.preventDefault(); handleSearch(searchInput.value); });
+        $("#search-form")?.addEventListener("submit", (e)=>{ e.preventDefault(); handleSearch(searchInput.value); });
         window.addEventListener("keydown", (e) => {
           if (e.key === "/" && document.activeElement !== searchInput) { e.preventDefault(); searchInput?.focus(); searchInput?.select(); }
           else if (e.key === "Escape" && document.activeElement === searchInput) { searchInput.value = ""; }
         });
 
-        await loadProfiles();
-        pickInitialProfile();
-        renderProfileMenu();
+        await loadProfiles(); pickInitialProfile(); renderProfileMenu();
         await loadLinksByProfile();
       });
     </script>
