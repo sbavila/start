@@ -5,6 +5,7 @@ import { renderClocks, startClockTicker } from "./clocks.js";
 import { refreshLinks } from "./links.js";
 import { runCommand, initCommandHints } from "./commands.js";
 import { routeSearch, clearCommandLine, focusCommandLine, hideCmdHints } from "./search.js";
+import { initTimersUI, restoreTimers } from "./timers.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Elements
@@ -42,6 +43,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   applyProfileDefaults();       // theme/tz from profile
   updateProfileBadge(badgeEl);
   await refreshLinks(linksEl, clocksEl);
+
+    // Timers
+    initTimersUI();
+    restoreTimers();
 
   // Command UI
   initCommandHints();

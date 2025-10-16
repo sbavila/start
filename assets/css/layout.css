@@ -126,3 +126,27 @@ a:hover{color:var(--accent);text-decoration:underline}
   .links{grid-auto-flow:row;grid-template-columns:1fr}
   #search_box{font-size:20px}
 }
+
+/* --- Timers UI --- */
+.timer-stack{position:fixed;bottom:16px;right:16px;display:grid;gap:8px;z-index:45}
+.timer-tile{
+  width:280px;background:rgba(0,0,0,.85);border:1px solid rgba(255,255,255,.12);
+  border-left:3px solid var(--accent);border-radius:10px;padding:8px 10px;color:var(--text);
+  box-shadow:0 6px 18px rgba(0,0,0,.25)
+}
+.timer-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.timer-label{font-weight:700}
+.timer-remaining{font-variant-numeric:tabular-nums}
+.timer-progress{margin-top:6px;height:4px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden}
+.timer-progress>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s linear}
+.timer-done{border-left-color:#f43f5e}
+.timer-progress>i.done{background:#f43f5e;width:100%}
+.timer-actions{margin-top:6px;display:flex;justify-content:flex-end}
+.timer-stop{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--text);border-radius:8px;padding:2px 8px;cursor:pointer}
+.timer-stop:hover{border-color:var(--accent);color:var(--accent)}
+.timer-toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:24px;
+  background:rgba(0,0,0,.9);color:var(--text);border:1px solid rgba(255,255,255,.12);
+  border-left:4px solid var(--accent);padding:8px 12px;border-radius:10px;opacity:0;transition:opacity .3s ease;z-index:60
+}
+.timer-toast.show{opacity:1}

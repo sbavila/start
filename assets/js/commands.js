@@ -3,6 +3,7 @@ import { changeCSS } from "./theme.js";
 import { routeSearch, clearCommandLine } from "./search.js";
 import { renderClocks, startClockTicker } from "./clocks.js";
 import { setProfile } from "./profiles.js";
+import { createTimer, cancelTimer, cancelAllTimers, listTimers, parseDuration } from "./timers.js";
 
 // Modal helpers
 const esc = (s)=> (s||"").replace(/[&<>"]/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
@@ -126,6 +127,55 @@ export function runCommand(line) {
     case "g": case "ddg": case "yt": case "r": case "hn":
       routeSearch(">" + [cmd, ...rest].join(" "), runCommand); // reuse routing
       break;
+
+    case "timer": {
+      const sub = (rest[0] || "").toLowerCase();
+      if (!sub) {
+      showModal("timer", "Usage: <code>timer &lt;dur&gt; [label]</code> · <code>timer ls</code> · <code>timer rm &lt;id|all&gt;</code>");
+      break;
+      }
+
+      if (sub === "ls") {
+      const rows = listTimers().map(t => `${t.id.slice(-6)}  ${t.label}  ends ${new Date(t.endAt).toLocaleTimeString()}`);
+      showModal("Timers", pre(rows.join("\n") || "(none)"));
+      break;
+      }
+
+      if (sub === "rm") {
+      const target = rest[1];
+      if (target === "all") {
+        cancelAllTimers();
+      } else if (target) {
+        cancelTimer(findTimerId(target));
+      } else {
+        showModal("timer rm", "Usage: <code>timer rm &lt;id|all&gt;</code>");
+      }
+      break;
+      }
+
+      // else assume duration + optional label
+      const durMs = parseDuration(sub);
+      const label = rest.slice(1).join(" ") || "Timer";
+      if (!durMs) {
+      showModal("timer", "Couldn’t parse duration. Try <code>10m</code>, <code>1h30m</code>, <code>15:00</code>…");
+      break;
+      }
+
+      const t = createTimer(durMs, label);
+      if (t) {
+      showModal("Timer started", pre(`${t.label}\nEnds at: ${new Date(t.endAt).toLocaleTimeString()}\nID: ${t.id.slice(-6)}`));
+      }
+      break;
+    }
+
+    function findTimerId(fragmentOrId) {
+      const frag = fragmentOrId.toLowerCase();
+      const all = listTimers();
+      const exact = all.find(t => t.id === fragmentOrId);
+      if (exact) return exact.id;
+      const partial = all.find(t => t.id.endsWith(frag));
+      return partial ? partial.id : fragmentOrId; // try raw
+    }
 
     default:
       showModal("Unknown command", `No such command: <b>${esc(cmd)}</b>. Try <code>help</code>.`);
