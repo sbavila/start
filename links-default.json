@@ -1,6 +1,6 @@
 {
   "title": "SBA Startpage – Default",
-  "theme": "Magenta",
+  "theme": "magenta",
   "timezones": ["Europe/London", "Europe/Berlin"],
   "sections": [
     {
