@@ -38,44 +38,49 @@ export function runCommand(line) {
   const arg  = rest.join(" ");
 
   switch (cmd) {
-    case "help":
-      showModal("Help", pre([
-        "Profiles:",
-        "  ls                   - list profiles",
-        "  pwd                  - show current profile",
-        "  cd <name>|-          - change profile (cd - jumps back)",
-        "",
-        "Links:",
-        "  labels [filter]      - list link labels (with URLs)",
-        "  ls labels            - same as `labels`",
-        "  ls links             - list link sections",
-        "",
-        "Themes:",
-        "  theme <name>         - switch theme",
-        "",
-        "Time:",
-        "  date                 - show current times",
-        "  tz add <IANA>        - add timezone",
-        "  tz rm  <IANA>        - remove timezone",
-        "  tz ls                - list timezones",
-        "",
-        "Notes:",
-        "  note <text>          - append to scratchpad",
-        "  cat  notes           - view scratchpad",
-        "  rm   notes           - clear scratchpad",
-        "",
-        "Search:",
-        "  g|ddg|yt|r|hn <q>    - shortcuts",
-        "  (typing URLs/IPs/labels/queries works without 'open')"
-      ].join("\n"))); break;
+   // assets/js/commands.js (inside runCommand)
+case "help": {
+  const topic = (rest[0]||"").toLowerCase();
+  if (!topic) { /* (existing overview from above) */ break; }
+  if (topic === "bm" || topic === "bookmarks") {
+    showModal("Help — bm", pre([
+      "bm ls [filter]",
+      "  List bookmarks known to this page (baseline + overlay once enabled).",
+      "  Example: bm ls mtx",
+      "",
+      "More bm commands (add/rm/mv/ren/sort) arrive next; for now, list + filter is live."
+    ].join("\n"))); break;
+  }
+  // add other topics over time: help sync, help notes, help offline...
+  showModal("Help", "Unknown topic. Try: <code>help</code> or <code>help bm</code>.");
+  break;
+}
 
-    case "ls":
-      if (!rest.length || rest[0] === "profiles")      showProfiles();
-      else if (rest[0] === "tz" || rest[0] === "time") tzCmd("ls");
-      else if (rest[0] === "links")                    showLinkSections();
-      else if (rest[0] === "labels")                   showLabels(rest.slice(1).join(" "));
-      else showModal("ls", "Try <code>ls</code> | <code>ls tz</code> | <code>ls links</code> | <code>ls labels</code>");
-      break;
+
+case "ls":
+  if (!rest.length || rest[0] === "profiles")      showProfiles();
+  else if (rest[0] === "tz" || rest[0] === "time") tzCmd("ls");
+  else if (rest[0] === "links")                    showLinkSections();
+  else if (rest[0] === "bookmarks")                showBookmarks(rest.slice(1).join(" "));
+  else showModal("ls", "Try <code>ls</code> | <code>ls tz</code> | <code>ls links</code> | <code>ls bookmarks</code>");
+  break;
+
+// NEW: primary entry point for bookmarks
+case "bm": {
+  const sub = (rest[0] || "").toLowerCase();
+  const arg = rest.slice(1).join(" ");
+  if (sub === "ls" || sub === "list" || !sub) {
+    showBookmarks(arg);
+  } else {
+    showModal("bm", "Implemented now: <code>bm ls [filter]</code>. More bm commands (add/rm/mv/ren/sort) arrive in the next pass.");
+  }
+  break;
+}
+
+  case "labels":
+  showModal("Bookmarks", pre("Heads‑up: <labels> is deprecated.\nUse: bm ls [filter]\n\nListing now…"));
+  showBookmarks(rest.join(" "));
+  break;
 
     case "pwd": showModal("Current profile", pre(state.ACTIVE_PROFILE)); break;
 
@@ -98,8 +103,6 @@ export function runCommand(line) {
 
     case "date": showDate(); break;
     case "tz":   tzCmd(rest[0], rest.slice(1).join(" ")); break;
-
-    case "labels": showLabels(rest.join(" ")); break;
 
     case "note":
       { const txt = document.getElementById("scratch");
@@ -188,16 +191,22 @@ function showProfiles() {
   const lines = state.PROFILES.map(p => `${p.id} — ${p.label}${p.id===state.ACTIVE_PROFILE ? "  (current)" : ""}`);
   showModal("Profiles", pre(lines.join("\n")));
 }
+
+// Links are now called Groups - 
 function showLinkSections() {
   const secs = [...document.querySelectorAll("#links section h3")].map(h => h.textContent.trim());
   showModal("Link Sections", pre(secs.map((t,i)=>`${i+1}. ${t}`).join("\n") || "(none)"));
 }
-function showLabels(filter="") {
+// NEW: showBookmarks replaces showLabels
+function showBookmarks(filter = "") {
   const keys = Object.keys(state.LINK_ALIASES).sort((a,b)=>a.localeCompare(b));
   const list = filter ? keys.filter(k => k.includes(filter.toLowerCase())) : keys;
-  const lines = list.length ? list.map(k => `${k}  ->  ${state.LINK_ALIASES[k]}`).join("\n") : "(no labels)";
-  showModal("Labels", pre(lines));
+  const lines = list.length
+    ? list.map(k => `${k}  ->  ${state.LINK_ALIASES[k]}`).join("\n")
+    : "(no bookmarks)";
+  showModal("Bookmarks", pre(lines));
 }
+
 function showDate() {
   const now = new Date();
   const out = state.timezones.map(tz => {
@@ -250,43 +259,54 @@ export function initCommandHints() {
   };
 
   function baseSuggestions(tok){
-    const first = tok.split(/\s+/)[0].toLowerCase();
-    const pool = ["help","ls ","pwd","cd ","cd -","labels","labels ","theme ","date","tz ","tz ls","tz add ","tz rm ","note ","cat notes","rm notes","g ","ddg ","yt ","r ","hn "];
-    return pool.filter(s => s.startsWith(first)).map(s => ({ label:s, replace:s }));
-  }
-  function suggestionsFor(tok){
-    const [cmd, ...rest] = tok.trim().split(/\s+/);
-    const arg = rest.join(" "); const out = [];
-    if (!cmd) return baseSuggestions("");
+  const first = tok.split(/\s+/)[0].toLowerCase();
+  const pool = [
+    "help","ls ","pwd","cd ","cd -",
+    "bm ","bm ls ","ls bookmarks",
+    "theme ","date","tz ","tz ls","tz add ","tz rm ",
+    "note ","cat notes","rm notes",
+    "g ","ddg ","yt ","r ","hn "
+  ];
+  return pool.filter(s => s.startsWith(first)).map(s => ({ label:s, replace:s }));
+}
 
-    switch (cmd) {
-      case "cd":
-        state.PROFILES.forEach(p => { if (!arg || p.id.startsWith(arg.toLowerCase())) out.push({label:`cd ${p.id}`, replace:`cd ${p.id}`}); });
-        out.push({label:"cd -", replace:"cd -"}); break;
-      case "theme":
-        state.themes.forEach(t => { if (!arg || t.startsWith(arg)) out.push({label:`theme ${t}`, replace:`theme ${t}`}); });
-        break;
-      case "ls":
-        ["profiles","tz","links","labels"].forEach(k => { if (!arg || k.startsWith(arg)) out.push({label:`ls ${k}`, replace:`ls ${k}`}); });
-        break;
-      case "tz":
-        ["ls","add ","rm "].forEach(k => { if (!arg || k.startsWith(arg)) out.push({label:`tz ${k}`, replace:`tz ${k}`}); });
-        if (arg.startsWith("add ")) {
-          ["Europe/London","UTC","America/New_York","Europe/Berlin","Asia/Tokyo"].forEach(z=>{
-            if (z.toLowerCase().includes(arg.slice(4).toLowerCase())) out.push({label:`tz add ${z}`, replace:`tz add ${z}`});
-          });
-        }
-        break;
-      case "labels": {
-        const needle = arg.toLowerCase();
-        Object.keys(state.LINK_ALIASES).forEach(k => {
-          if (!needle || k.includes(needle)) out.push({label:`labels ${k}`, replace:`labels ${k}`});
-        }); break;
+  function suggestionsFor(tok){
+  const [cmd, ...rest] = tok.trim().split(/\s+/);
+  const arg = rest.join(" ");
+  const out = [];
+  if (!cmd) return baseSuggestions("");
+
+  switch (cmd) {
+    case "cd":
+      state.PROFILES.forEach(p => { if (!arg || p.id.startsWith(arg.toLowerCase())) out.push({label:`cd ${p.id}`, replace:`cd ${p.id}`}); });
+      out.push({label:"cd -", replace:"cd -"});
+      break;
+    case "theme":
+      state.themes.forEach(t => { if (!arg || t.startsWith(arg)) out.push({label:`theme ${t}`, replace:`theme ${t}`}); });
+      break;
+    case "ls":
+      ["profiles","tz","links","bookmarks"].forEach(k => {
+        if (!arg || k.startsWith(arg)) out.push({label:`ls ${k}`, replace:`ls ${k}`});
+      });
+      break;
+    case "tz":
+      ["ls","add ","rm "].forEach(k => { if (!arg || k.startsWith(arg)) out.push({label:`tz ${k}`, replace:`tz ${k}`}); });
+      if (arg.startsWith("add ")) {
+        ["Europe/London","UTC","America/New_York","Europe/Berlin","Asia/Tokyo"].forEach(z=>{
+          if (z.toLowerCase().includes(arg.slice(4).toLowerCase())) out.push({label:`tz add ${z}`, replace:`tz add ${z}`});
+        });
       }
-      default: return baseSuggestions(tok);
-    }
-    return out.length ? out : baseSuggestions(tok);
+      break;
+    case "bm":
+      // for now, only ‘ls’ is implemented; when add/rm arrive, we list them here
+      if (!arg || "ls".startsWith(arg)) out.push({label:"bm ls ", replace:"bm ls "});
+      break;
+    default:
+      return baseSuggestions(tok);
   }
+  return out.length ? out : baseSuggestions(tok);
+}
+
 
   input.addEventListener("input", () => {
     const v = input.value.trimStart();
