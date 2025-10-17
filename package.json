@@ -7,7 +7,8 @@
     "lint": "eslint assets/js --ext .js",
     "format": "prettier --check \"**/*.{js,json,md,html,css}\"",
     "test": "npm run test:unit",
-    "test:unit": "node tests/timers.test.js && node tests/state.test.js",
+    "doctor": "npm run lint && npm test",
+    "test:unit": "node tests/timers.test.js && node tests/state.test.js && node tests/bookmarks.test.js",
     "test:playwright": "playwright test"
   },
   "devDependencies": {
