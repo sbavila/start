@@ -132,7 +132,7 @@ export function parseDuration(s) {
   if (hhmmss) {
     const h = hhmmss[3] ? parseInt(hhmmss[1], 10) : 0;
     const m = parseInt(hhmmss[hhmmss[3] ? 2 : 1], 10);
-    const sec = parseInt(hhmmss[3] ? hhmmss[2] : hhmmss[2], 10);
+    const sec = parseInt(hhmmss[3] ? hhmmss[3] : hhmmss[2], 10);
     return ((h * 60 + m) * 60 + sec) * 1000;
   }
   // 1h30m10s style
@@ -151,6 +151,13 @@ export function parseDuration(s) {
   // plain number => seconds
   if (/^\d+$/.test(s)) return parseInt(s, 10) * 1000;
   return 0;
+}
+
+if (typeof window !== "undefined") {
+  console.assert(
+    parseDuration("1:02:03") === 3723000,
+    "parseDuration should parse hh:mm:ss correctly"
+  );
 }
 
 function format(ms) {

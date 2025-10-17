@@ -8,6 +8,23 @@ import { createTimer, cancelTimer, cancelAllTimers, listTimers, parseDuration } 
 // Modal helpers
 const esc = (s)=> (s||"").replace(/[&<>"]/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
 const pre = (t)=> `<pre class="modal-pre">${esc(t)}</pre>`;
+const HELP_OVERVIEW = pre([
+  "Commands:",
+  "  help [topic]          Show this list or topic-specific help",
+  "  ls [profiles|tz|links|bookmarks]",
+  "  bm ls [filter]        List bookmarks (filter optional)",
+  "  pwd | cd <profile>    Show or change profile",
+  "  theme <name>          Switch theme",
+  "  date                  Show today’s date",
+  "  tz ls | tz add <IANA> | tz rm <IANA>",
+  "  note <text> | cat notes | rm notes",
+  "  timer <dur> [label] | timer ls | timer rm <id|all>",
+  "",
+  "Shortcuts:",
+  "  g <q> | ddg <q> | yt <q> | r <sub> | hn",
+  "",
+  "Tip: Anything else searches DuckDuckGo or opens URLs directly."
+].join("\n"));
 function showModal(title, html) {
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
@@ -41,7 +58,7 @@ export function runCommand(line) {
    // assets/js/commands.js (inside runCommand)
 case "help": {
   const topic = (rest[0]||"").toLowerCase();
-  if (!topic) { /* (existing overview from above) */ break; }
+  if (!topic) { showModal("Help", HELP_OVERVIEW); break; }
   if (topic === "bm" || topic === "bookmarks") {
     showModal("Help — bm", pre([
       "bm ls [filter]",
@@ -52,7 +69,7 @@ case "help": {
     ].join("\n"))); break;
   }
   // add other topics over time: help sync, help notes, help offline...
-  showModal("Help", "Unknown topic. Try: <code>help</code> or <code>help bm</code>.");
+  showModal("Help", `<p>Unknown topic. Showing general help instead.</p>${HELP_OVERVIEW}`);
   break;
 }
 
