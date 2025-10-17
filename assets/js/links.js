@@ -1,6 +1,7 @@
 import { state } from "./state.js";
 import { renderClocks, startClockTicker } from "./clocks.js";
 import { changeCSS } from "./theme.js";
+import { loadOverlay, mergeWithOverlay } from "./bookmarks.js";
 
 export async function refreshLinks(linksEl, clocksEl) {
   // Profile defaults first (theme/tz)
@@ -14,7 +15,9 @@ export async function refreshLinks(linksEl, clocksEl) {
     data = await getJSON("./links-default.json");
   }
   applyFileMeta(data);
-  renderGroups(linksEl, data);
+  const overlay = loadOverlay(state.ACTIVE_PROFILE);
+  const merged = mergeWithOverlay(data, overlay);
+  renderGroups(linksEl, merged);
   buildBookmarkAliases(linksEl);
 
   // Update clocks after possible tz overrides from link file

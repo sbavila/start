@@ -10,6 +10,17 @@ A fast, minimal start page for live events and show ops. It’s a **static HTML*
 - Optional **Timers** (local alarms)
 - **Theme system** (variable‑only colorway CSS)
 
+### Bookmark commands
+
+The `bm` command family manages a local overlay of bookmarks:
+
+- `bm add "Label" <url> [#Group]` adds a bookmark (defaulting to the first visible group).
+- `bm rm <label|#n>` removes overlay bookmarks or hides baseline entries.
+- `bm mv "Label" #Group` moves a bookmark; `bm ren "Old" "New"` renames it.
+- `bm hide "Label"` / `bm unhide "Label"` toggle visibility.
+- `bm sort insertion|alpha|smart`, `bm sort #Group …`, `bm sort apply`, and `bm sort reset` control ordering, while `groups sort …` applies to group headings.
+- `bm export` / `bm import` round-trip the overlay JSON for backup or sharing.
+
 > The DOM keeps the classic hooks: links render inside `#links` with `.links` sections; clocks under `#clocks`; scratchpad uses `#scratch`. Your theme CSS already targets those selectors, so keep them stable. :contentReference[oaicite:2]{index=2}
 
 ---
