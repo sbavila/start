@@ -1,6 +1,4 @@
 // assets/js/timers.js
-import { state } from "./state.js";
-import { clearCommandLine } from "./search.js";
 
 const STORAGE_KEY = "timers.v1";
 const timers = new Map();           // id -> timer
@@ -21,7 +19,9 @@ export function restoreTimers() {
       if (t.endAt > Date.now()) addTimerToUI(t);
     });
     startTick();
-  } catch {}
+  } catch (error) {
+    console.warn("Failed to restore timers", error);
+  }
 }
 
 export function createTimer(durationMs, label = "Timer") {
@@ -124,16 +124,19 @@ function persist() {
 }
 
 // ---- utilities ----
-export function parseDuration(s) {
+export function parseDuration(input) {
+  if (!input) return 0;
+  const s = String(input).trim().toLowerCase();
   if (!s) return 0;
-  s = s.trim().toLowerCase();
+
   // hh:mm:ss or mm:ss
   const hhmmss = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
   if (hhmmss) {
-    const h = hhmmss[3] ? parseInt(hhmmss[1], 10) : 0;
-    const m = parseInt(hhmmss[hhmmss[3] ? 2 : 1], 10);
-    const sec = parseInt(hhmmss[3] ? hhmmss[3] : hhmmss[2], 10);
-    return ((h * 60 + m) * 60 + sec) * 1000;
+    const hasHours = Boolean(hhmmss[3]);
+    const hours = hasHours ? parseInt(hhmmss[1], 10) : 0;
+    const minutes = parseInt(hasHours ? hhmmss[2] : hhmmss[1], 10);
+    const seconds = parseInt(hasHours ? hhmmss[3] : hhmmss[2], 10);
+    return ((hours * 60 + minutes) * 60 + seconds) * 1000;
   }
   // 1h30m10s style
   let total = 0, matched = false;
@@ -180,7 +183,9 @@ function beep() {
     g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
     o.start();
     setTimeout(() => { g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.2); o.stop(ctx.currentTime + 0.25); }, 250);
-  } catch {}
+  } catch (error) {
+    console.warn("Audio beep failed", error);
+  }
 }
 
 function requestNotificationPermission() {
@@ -190,7 +195,9 @@ function requestNotificationPermission() {
 }
 function notify(title, body) {
   if ("Notification" in window && Notification.permission === "granted" && document.hidden) {
-    try { new Notification(title, { body }); return; } catch {}
+    try { new Notification(title, { body }); return; } catch (error) {
+      console.warn("Notification failed", error);
+    }
   }
   // fallback: a subtle modal-ish toast
   const t = document.createElement("div");

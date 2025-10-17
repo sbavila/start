@@ -28,3 +28,28 @@ python3 -m http.server 8000
 npx http-server -p 8000
 # or
 npx serve -l 8000
+```
+
+### Tooling & tests
+
+Install dev dependencies (ESLint, Prettier, optional Playwright) and run checks:
+
+```bash
+npm install
+npm run lint        # ESLint over assets/js
+npm run format      # Prettier check for JS/HTML/CSS/JSON/MD
+npm test            # Node-based unit checks (parseDuration)
+# npm run test:playwright  # Stubbed smoke suite (requires @playwright/test)
+```
+
+> Playwright stays optional so the workflow keeps a light footprint, but the
+> provided devcontainer now supports installing it directly. Run
+> `npm install @playwright/test` and `npx playwright install` when you are ready
+> to flesh out the smoke suite.
+
+### Cache rules
+
+Cloudflare Pages `_headers` already enforces the expected policies: HTML/JSON
+responses use `no-store`, JS modules `must-revalidate`, and CSS/theme assets are
+served with `immutable`. Bump the script `?v=` parameter in `index.html` if you
+need to bust caches during development.
