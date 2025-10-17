@@ -34,16 +34,21 @@ export function setProfile(profileId) {
 
 export function renderProfileMenu(menuEl) {
   if (!menuEl) return;
-  [...menuEl.querySelectorAll('a[data-profile]')].forEach(a => a.parentElement.remove());
+  [...menuEl.querySelectorAll("li[data-profile-item]")].forEach((node) => node.remove());
   const anchor = menuEl.querySelector(".menu-heading") || menuEl.lastElementChild;
-  state.PROFILES.forEach(p => {
+  const fragment = document.createDocumentFragment();
+  state.PROFILES.forEach((profile) => {
     const li = document.createElement("li");
-    const a  = document.createElement("a");
-    a.href = "#"; a.setAttribute("data-profile", p.id);
-    a.textContent = p.label + (p.id === state.ACTIVE_PROFILE ? " (current)" : "");
-    if (p.id === state.ACTIVE_PROFILE) a.classList.add("profile-current");
-    li.appendChild(a); anchor.parentNode.insertBefore(li, anchor.nextSibling);
+    li.setAttribute("data-profile-item", profile.id);
+    const anchorEl = document.createElement("a");
+    anchorEl.href = "#";
+    anchorEl.setAttribute("data-profile", profile.id);
+    anchorEl.textContent = profile.label + (profile.id === state.ACTIVE_PROFILE ? " (current)" : "");
+    anchorEl.classList.toggle("profile-current", profile.id === state.ACTIVE_PROFILE);
+    li.appendChild(anchorEl);
+    fragment.appendChild(li);
   });
+  anchor?.parentNode?.insertBefore(fragment, anchor.nextSibling);
 }
 
 export function updateProfileBadge(badgeEl) {

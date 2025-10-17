@@ -1,0 +1,21 @@
+{
+  "name": "startpage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint assets/js --ext .js",
+    "format": "prettier --check \"**/*.{js,json,md,html,css}\"",
+    "test": "npm run test:unit",
+    "test:unit": "node tests/timers.test.js && node tests/state.test.js",
+    "test:playwright": "playwright test"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5"
+  },
+  "optionalDependencies": {
+    "@playwright/test": "^1.42.1"
+  }
+}

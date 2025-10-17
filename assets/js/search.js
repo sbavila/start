@@ -16,7 +16,11 @@ const HOST_SUFFIXES = ["local","lan"];
 export function navigate(url) {
   // Clear before navigating to avoid stale bfcache input state
   const i = document.getElementById("search_box");
-  if (i) i.value = "";
+  if (i) {
+    i.value = "";
+    i.blur();
+  }
+  hideCmdHints();
   window.location.href = url;
 }
 
@@ -35,9 +39,9 @@ export function routeSearch(raw, runCommand) {
 
   // Label exact/unique
   const lower = text.toLowerCase();
-  if (state.LINK_ALIASES[lower]) { navigate(state.LINK_ALIASES[lower]); return; }
-  const match = Object.keys(state.LINK_ALIASES).filter(k => k.includes(lower));
-  if (match.length === 1) { navigate(state.LINK_ALIASES[match[0]]); return; }
+  if (state.BOOKMARK_ALIASES[lower]) { navigate(state.BOOKMARK_ALIASES[lower]); return; }
+  const match = Object.keys(state.BOOKMARK_ALIASES).filter((key) => key.includes(lower));
+  if (match.length === 1) { navigate(state.BOOKMARK_ALIASES[match[0]]); return; }
 
   // URL / IP
   if (RE_URL.test(text)) { navigate(text.startsWith("http") ? text : "https://" + text); return; }

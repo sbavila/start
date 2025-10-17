@@ -16,9 +16,20 @@ try {
 export const state = {
   themes: THEMES,
   defaultTheme,
+  activeTheme: defaultTheme,
+  themeLinks: new Map(),
   PROFILES: [],
   ACTIVE_PROFILE: null,
   LAST_PROFILE: null,        // for `cd -`
   timezones: ["Europe/London", "Europe/Berlin"],
-  LINK_ALIASES: {},          // label -> URL
+  BOOKMARK_ALIASES: Object.create(null),
 };
+
+Object.defineProperty(state, "LINK_ALIASES", {
+  get() {
+    return state.BOOKMARK_ALIASES;
+  },
+  set(value) {
+    state.BOOKMARK_ALIASES = value || Object.create(null);
+  },
+});

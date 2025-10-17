@@ -1,4 +1,3 @@
-import { state } from "./state.js";
 import { initThemeLoader, changeCSS } from "./theme.js";
 import { loadProfiles, pickInitialProfile, renderProfileMenu, updateProfileBadge, applyProfileDefaults, setProfile } from "./profiles.js";
 import { renderClocks, startClockTicker } from "./clocks.js";
@@ -27,13 +26,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Clocks baseline
-  renderClocks(clocksEl); startClockTicker(clocksEl);
+  renderClocks(clocksEl);
+  startClockTicker(clocksEl);
 
   // Input autofocus + keyboard
   input?.focus(); input?.select();
-  form?.addEventListener("submit", (e) => { e.preventDefault(); routeSearch(input.value, runCommand); });
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    routeSearch(input.value, runCommand);
+  });
   window.addEventListener("keydown", (e) => {
-    if (e.key === "/" && document.activeElement !== input) { e.preventDefault(); input?.focus(); input?.select(); }
+    if (e.key === "/" && document.activeElement !== input) {
+      e.preventDefault();
+      input?.focus();
+      input?.select();
+    }
   });
 
   // Profiles + links
@@ -44,15 +51,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateProfileBadge(badgeEl);
   await refreshLinks(linksEl, clocksEl);
 
-    // Timers
-    initTimersUI();
-    restoreTimers();
+  // Timers
+  initTimersUI();
+  restoreTimers();
 
   // Command UI
   initCommandHints();
 
   // bfcache restore: clear & refocus
-  window.addEventListener("pageshow", () => { clearCommandLine(); hideCmdHints(); focusCommandLine(); });
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      clearCommandLine();
+      hideCmdHints();
+    }
+    focusCommandLine();
+  });
   window.addEventListener("visibilitychange", () => { if (!document.hidden) focusCommandLine(); });
   window.addEventListener("focus", focusCommandLine);
 });
