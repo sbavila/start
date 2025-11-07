@@ -338,7 +338,7 @@ export async function runCommand(line) {
       case "yt":
       case "r":
       case "hn": {
-        routeSearch(">" + [cmd, ...rest].join(" "), runCommand);
+        routeSearch("." + [cmd, ...rest].join(" "), runCommand);
         break;
       }
 
@@ -905,7 +905,7 @@ export function initCommandHints() {
   const apply = (selected) => {
     const choice = selected ?? items[sel];
     if (!choice) return;
-    input.value = ">" + choice.replace;
+    input.value = "." + choice.replace;
     if (!choice.replace.endsWith(" ")) {
       runCommand(input.value);
       hide();
@@ -1105,7 +1105,7 @@ export function initCommandHints() {
 
   input.addEventListener("input", () => {
     const value = input.value.trimStart();
-    if (!value.startsWith(">")) {
+    if (!value.startsWith(".")) {
       hide();
       return;
     }
