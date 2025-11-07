@@ -45,10 +45,6 @@
 
       <!-- Main card: links + command bar -->
       <div class="maincard" role="region" aria-label="Startpage">
-        <div class="content">
-          <div id="links" class="links"></div>
-        </div>
-
         <div class="search" role="search">
           <form id="search-form" autocomplete="off">
             <label for="search_box">&gt; find /</label>
@@ -64,6 +60,10 @@
           </form>
           <small>Shell: <code>bm ls</code>, <code>ls bookmarks</code>, <code>cd &lt;profile&gt;</code>, <code>theme &lt;name&gt;</code>, <code>date</code>. Notes: <code>note</code>/<code>cat notes</code>/<code>rm notes</code></small>
           <div id="cmd-hints" role="listbox" aria-label="Command suggestions" style="display:none"></div>
+        </div>
+
+        <div class="content">
+          <div id="links" class="links"></div>
         </div>
       </div>
     </div>
