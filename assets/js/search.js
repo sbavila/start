@@ -30,7 +30,7 @@ export function routeSearch(raw, runCommand) {
   if (!text) return;
 
   // Commands
-  if (text.startsWith(">")) { runCommand(text); return; }
+  if (text.startsWith(".")) { runCommand(text); return; }
 
   // Shortcuts
   const [key, ...rest] = text.split(/\s+/);
