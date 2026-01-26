@@ -1,18 +1,18 @@
 :root{
-  --bg:#0a1203;
-  --text:#ecfccb;
-  --accent:#84cc16;
-  --text-dim:#bfe982;
-  --text-muted:rgba(207,241,170,.72);
-  --text-faint:rgba(207,241,170,.45);
-  --surface-strong:rgba(10,18,3,.96);
-  --surface-elevated:rgba(10,18,3,.98);
-  --surface:rgba(12,20,4,.88);
-  --surface-muted:rgba(12,20,4,.7);
-  --surface-soft:rgba(12,20,4,.6);
-  --surface-subtle:rgba(255,255,255,.04);
-  --surface-hover:rgba(132,204,22,.18);
-  --border-color:rgba(255,255,255,.14);
-  --border-subtle:rgba(255,255,255,.1);
+  --bg:#f7fee7;
+  --text:#1a2e05;
+  --accent:#65a30d;
+  --text-dim:#365314;
+  --text-muted:rgba(26,46,5,.62);
+  --text-faint:rgba(26,46,5,.42);
+  --surface-strong:rgba(255,255,255,.98);
+  --surface-elevated:rgba(255,255,255,.96);
+  --surface:#ffffff;
+  --surface-muted:rgba(255,255,255,.94);
+  --surface-soft:rgba(255,255,255,.9);
+  --surface-subtle:rgba(101,163,13,.08);
+  --surface-hover:rgba(101,163,13,.14);
+  --border-color:rgba(26,46,5,.12);
+  --border-subtle:rgba(26,46,5,.08);
   --container-max-w:1200px;
 }
