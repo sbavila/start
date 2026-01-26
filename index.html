@@ -28,6 +28,8 @@
           <li><a href="#" data-theme="cyan">cyan</a></li>
           <li><a href="#" data-theme="amber">amber</a></li>
           <li><a href="#" data-theme="lime">lime</a></li>
+          <li class="menu-divider" aria-hidden="true"></li>
+          <li><button class="menu-action" type="button" id="bookmark-manager-toggle" aria-controls="bookmark-manager" aria-expanded="false">Bookmark manager</button></li>
 
           <!-- Profiles will be injected here -->
           <li class="menu-divider" aria-hidden="true"></li>
@@ -63,7 +65,7 @@
         </div>
 
         <div class="content">
-          <section id="bookmark-manager" class="bookmark-manager" aria-label="Bookmark manager">
+          <section id="bookmark-manager" class="bookmark-manager" aria-label="Bookmark manager" hidden>
             <h3 class="bookmark-manager-title">// bookmark manager</h3>
             <p class="bookmark-manager-subtitle">Add, remove, or move bookmarks between groups.</p>
             <div class="bookmark-grid">

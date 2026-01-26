@@ -69,6 +69,8 @@ function updateDatalist(listEl, groups) {
 export function initBookmarkManager({ linksEl, clocksEl } = {}) {
   const manager = document.getElementById("bookmark-manager");
   if (!manager) return;
+  const toggleButton = document.getElementById("bookmark-manager-toggle");
+  const navToggle = document.getElementById("nav-toggle");
 
   const addForm = manager.querySelector("#bookmark-add-form");
   const moveForm = manager.querySelector("#bookmark-move-form");
@@ -83,6 +85,7 @@ export function initBookmarkManager({ linksEl, clocksEl } = {}) {
   const moveSelect = manager.querySelector("#bookmark-move-select");
   const moveGroupInput = manager.querySelector("#bookmark-move-group");
   const removeSelect = manager.querySelector("#bookmark-remove-select");
+  const firstInput = manager.querySelector("input, select, button");
 
   let currentBookmarks = [];
 
@@ -99,6 +102,20 @@ export function initBookmarkManager({ linksEl, clocksEl } = {}) {
     await refreshLinks(linksEl, clocksEl);
     syncOptions();
   };
+
+  if (toggleButton) {
+    toggleButton.addEventListener("click", () => {
+      const nextHidden = !manager.hidden;
+      manager.hidden = nextHidden;
+      toggleButton.setAttribute("aria-expanded", String(!nextHidden));
+      if (!nextHidden) {
+        setStatus(statusEl, "");
+        syncOptions();
+        firstInput?.focus();
+      }
+      if (navToggle) navToggle.checked = false;
+    });
+  }
 
   addForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
