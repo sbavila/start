@@ -57,6 +57,10 @@ npm test            # Node-based unit checks (parseDuration)
 > provided devcontainer now supports installing it directly. Run
 > `npm install @playwright/test` and `npx playwright install` when you are ready
 > to flesh out the smoke suite.
+>
+> The Playwright HTML report is written to `playwright-report/`, and artifacts
+> (screenshots/traces/videos) are stored under `playwright-report/test-results`
+> so uploaded reports resolve attachments without “not found” errors.
 
 ### Cache rules
 
