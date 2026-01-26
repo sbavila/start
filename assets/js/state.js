@@ -21,7 +21,7 @@ export const state = {
   PROFILES: [],
   ACTIVE_PROFILE: null,
   LAST_PROFILE: null,        // for `cd -`
-  timezones: ["Europe/London", "Europe/Berlin"],
+  timezones: ["Europe/London"],
   BOOKMARK_ALIASES: Object.create(null),
 };
 

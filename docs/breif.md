@@ -29,7 +29,7 @@ The UI must remain compatible with existing CSS:
 {
   "title": "SBA Startpage – Default",
   "theme": "magenta",
-  "timezones": ["Europe/London", "Europe/Berlin"],
+  "timezones": ["Europe/London"],
   "sections": [
     { "title": "// Productivity", "items": [ { "label":"Sheets","url":"..." } ] }
   ]
