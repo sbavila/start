@@ -19,6 +19,7 @@ export async function refreshLinks(linksEl, clocksEl) {
   const merged = mergeWithOverlay(data, overlay);
   renderGroups(linksEl, merged);
   buildBookmarkAliases(linksEl);
+  document.dispatchEvent(new CustomEvent("links:updated"));
 
   // Update clocks after possible tz overrides from link file
   if (clocksEl) { renderClocks(clocksEl); startClockTicker(clocksEl); }
