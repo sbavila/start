@@ -52,7 +52,7 @@ export function routeSearch(raw, runCommand) {
   if (m && HOST_SUFFIXES.includes((m[2]||"").toLowerCase())) { navigate("http://" + text); return; }
 
   // Default search
-  navigate(`https://duckduckgo.com/?q=${encodeURIComponent(text)}`);
+  navigate(`https://kagi.com/search?q=${encodeURIComponent(text)}`);
 }
 
 // bfcache / focus helpers
