@@ -84,6 +84,11 @@ export function initBookmarkManager({ linksEl, clocksEl } = {}) {
 
   const moveSelect = manager.querySelector("#bookmark-move-select");
   const moveGroupInput = manager.querySelector("#bookmark-move-group");
+  const editForm = manager.querySelector("#bookmark-edit-form");
+  const editSelect = manager.querySelector("#bookmark-edit-select");
+  const editLabelInput = manager.querySelector("#bookmark-edit-label");
+  const editUrlInput = manager.querySelector("#bookmark-edit-url");
+  const editGroupInput = manager.querySelector("#bookmark-edit-group");
   const removeSelect = manager.querySelector("#bookmark-remove-select");
   const firstInput = manager.querySelector("input, select, button");
 
@@ -94,7 +99,15 @@ export function initBookmarkManager({ linksEl, clocksEl } = {}) {
     currentBookmarks = readBookmarksFromDOM();
     updateDatalist(groupOptions, groups);
     updateSelect(moveSelect, currentBookmarks, "No bookmarks available");
+    updateSelect(editSelect, currentBookmarks, "No bookmarks available");
     updateSelect(removeSelect, currentBookmarks, "No bookmarks available");
+    if (editSelect && !editSelect.disabled) {
+      const first = editSelect.options[0]?.value || "";
+      if (first && editSelect.value !== first) {
+        editSelect.value = first;
+      }
+      editSelect.dispatchEvent(new Event("change"));
+    }
   };
 
   const applyOverlay = async (nextOverlay) => {
@@ -116,6 +129,20 @@ export function initBookmarkManager({ linksEl, clocksEl } = {}) {
       if (navToggle) navToggle.checked = false;
     });
   }
+
+  editSelect?.addEventListener("change", () => {
+    const label = editSelect.value;
+    const entry = currentBookmarks.find((bookmark) => bookmark.label === label);
+    if (!entry) {
+      if (editLabelInput) editLabelInput.value = "";
+      if (editUrlInput) editUrlInput.value = "";
+      if (editGroupInput) editGroupInput.value = "";
+      return;
+    }
+    if (editLabelInput) editLabelInput.value = entry.label;
+    if (editUrlInput) editUrlInput.value = entry.url;
+    if (editGroupInput) editGroupInput.value = entry.group;
+  });
 
   addForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -164,6 +191,31 @@ export function initBookmarkManager({ linksEl, clocksEl } = {}) {
 
     if (moveGroupInput) moveGroupInput.value = "";
     setStatus(statusEl, `Moved “${label}” to ${group}.`);
+  });
+
+  editForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const selected = editSelect?.value || "";
+    const label = editLabelInput?.value.trim() || "";
+    const url = editUrlInput?.value.trim() || "";
+    const group = editGroupInput?.value.trim() || "";
+
+    if (!selected) {
+      setStatus(statusEl, "Choose a bookmark to edit.");
+      return;
+    }
+    if (!label || !url) {
+      setStatus(statusEl, "Add a label and URL first.");
+      return;
+    }
+
+    let overlay = loadOverlay(state.ACTIVE_PROFILE);
+    if (selected !== label) {
+      overlay = removeBookmark(overlay, selected);
+    }
+    const nextOverlay = addBookmark(overlay, { label, url, group });
+    await applyOverlay(nextOverlay);
+    setStatus(statusEl, `Updated “${label}”.`);
   });
 
   removeForm?.addEventListener("submit", async (event) => {

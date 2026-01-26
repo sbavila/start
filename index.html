@@ -89,6 +89,19 @@
                 <button type="submit">Move</button>
               </form>
 
+              <form id="bookmark-edit-form" class="bookmark-card" autocomplete="off">
+                <h4>Edit bookmark</h4>
+                <label for="bookmark-edit-select">Bookmark</label>
+                <select id="bookmark-edit-select" name="bookmark-edit-select"></select>
+                <label for="bookmark-edit-label">Label</label>
+                <input id="bookmark-edit-label" name="bookmark-edit-label" type="text" placeholder="Docs" required />
+                <label for="bookmark-edit-url">URL</label>
+                <input id="bookmark-edit-url" name="bookmark-edit-url" type="url" placeholder="https://example.com" required />
+                <label for="bookmark-edit-group">Group</label>
+                <input id="bookmark-edit-group" name="bookmark-edit-group" type="text" list="group-options" placeholder="Work" />
+                <button type="submit">Save changes</button>
+              </form>
+
               <form id="bookmark-remove-form" class="bookmark-card" autocomplete="off">
                 <h4>Remove bookmark</h4>
                 <label for="bookmark-remove-select">Bookmark</label>
