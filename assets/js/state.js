@@ -1,5 +1,13 @@
 // Single shared state object. Everyone imports from here.
 const THEMES = ["magenta", "light", "cyan", "amber", "lime"];
+const BASE_TIMEZONES = ["Europe/London", "Europe/Berlin"];
+const LOCAL_TIMEZONE = (() => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+  } catch {
+    return null;
+  }
+})();
 let defaultTheme = THEMES[0];
 
 try {
@@ -21,9 +29,18 @@ export const state = {
   PROFILES: [],
   ACTIVE_PROFILE: null,
   LAST_PROFILE: null,        // for `cd -`
-  timezones: ["Europe/London"],
+  timezones: LOCAL_TIMEZONE && !BASE_TIMEZONES.includes(LOCAL_TIMEZONE)
+    ? [LOCAL_TIMEZONE, ...BASE_TIMEZONES]
+    : [...BASE_TIMEZONES],
   BOOKMARK_ALIASES: Object.create(null),
 };
+
+export function ensureLocalTimezone() {
+  if (!LOCAL_TIMEZONE) return;
+  if (!state.timezones.includes(LOCAL_TIMEZONE)) {
+    state.timezones.unshift(LOCAL_TIMEZONE);
+  }
+}
 
 Object.defineProperty(state, "LINK_ALIASES", {
   get() {

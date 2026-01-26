@@ -1,4 +1,4 @@
-import { state } from "./state.js";
+import { state, ensureLocalTimezone } from "./state.js";
 import { renderClocks, startClockTicker } from "./clocks.js";
 import { changeCSS } from "./theme.js";
 import { loadOverlay, mergeWithOverlay } from "./bookmarks.js";
@@ -31,6 +31,7 @@ function applyFileMeta(data) {
   if (Array.isArray(data.timezones) && data.timezones.length) {
     state.timezones.splice(0, state.timezones.length, ...data.timezones);
   }
+  ensureLocalTimezone();
 }
 
 function renderGroups(container, data) {

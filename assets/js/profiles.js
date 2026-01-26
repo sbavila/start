@@ -1,4 +1,4 @@
-import { state } from "./state.js";
+import { state, ensureLocalTimezone } from "./state.js";
 import { changeCSS } from "./theme.js";
 
 export async function loadProfiles() {
@@ -63,4 +63,5 @@ export function applyProfileDefaults() {
   if (Array.isArray(p?.timezones) && p.timezones.length) {
     state.timezones.splice(0, state.timezones.length, ...p.timezones);
   }
+  ensureLocalTimezone();
 }
