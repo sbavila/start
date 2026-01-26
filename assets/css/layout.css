@@ -40,6 +40,10 @@ a:hover{color:var(--accent);text-decoration:underline}
 .navbar-container input:checked ~ .menu-items{transform:translateX(0)}
 .menu-items li{margin:0 0 12px}
 .menu-items a{color:var(--text)} .menu-items a:hover{color:var(--accent)}
+.menu-action{
+  background:none;border:0;color:var(--text);font:inherit;padding:0;cursor:pointer;text-align:left
+}
+.menu-action:hover,.menu-action:focus{color:var(--accent);outline:none}
 .menu-divider{height:1px;margin:10px 0;background:rgba(255,255,255,.12)}
 .menu-heading{color:var(--accent);font-weight:700;margin-bottom:6px}
 .profile-current{color:var(--accent);font-weight:700}
@@ -71,6 +75,32 @@ a:hover{color:var(--accent);text-decoration:underline}
   display:flex;flex-direction:column;
 }
 .content{padding:22px 26px 10px}
+
+/* ===== Bookmark manager ===== */
+.bookmark-manager{
+  margin-bottom:18px;padding:14px 16px;background:rgba(0,0,0,.65);
+  border:1px solid rgba(255,255,255,.12);border-left:3px solid var(--accent);border-radius:12px;
+}
+.bookmark-manager[hidden]{display:none}
+.bookmark-manager-title{color:var(--accent);font-weight:700;margin:0 0 6px}
+.bookmark-manager-subtitle{color:rgba(255,255,255,.6);font-size:12px;margin:0 0 12px}
+.bookmark-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.bookmark-card{display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px}
+.bookmark-card h4{color:var(--accent);font-weight:700;font-size:14px;margin:0 0 2px}
+.bookmark-card label{font-size:12px;color:rgba(255,255,255,.7)}
+.bookmark-card input,
+.bookmark-card select{
+  background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.12);border-radius:8px;
+  color:var(--text);padding:6px 8px;font-family:var(--mono);font-size:13px;outline:none
+}
+.bookmark-card input:focus,
+.bookmark-card select:focus{border-color:var(--accent)}
+.bookmark-card button{
+  margin-top:6px;background:var(--accent);color:#000;border:0;border-radius:8px;
+  font-weight:700;padding:6px 8px;cursor:pointer
+}
+.bookmark-card button:hover{filter:brightness(1.05)}
+.bookmark-status{margin:10px 0 0;color:rgba(255,255,255,.7);font-size:12px;min-height:16px}
 
 /* Each section is a column (collapses on narrow) */
 .links{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:1.5rem 2.25rem;align-items:start}
