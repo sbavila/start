@@ -1,7 +1,18 @@
 :root{
-  --bg:#000;
-  --text:#ff00ff;
-  --accent:#00ffff;
-  --text-dim:#eaa7ea;
+  --bg:#0a0012;
+  --text:#ffd1ff;
+  --accent:#ff35f2;
+  --text-dim:#d6a5de;
+  --text-muted:rgba(255,189,255,.72);
+  --text-faint:rgba(255,189,255,.45);
+  --surface-strong:rgba(8,0,12,.96);
+  --surface-elevated:rgba(8,0,12,.98);
+  --surface:rgba(10,0,16,.88);
+  --surface-muted:rgba(10,0,16,.7);
+  --surface-soft:rgba(10,0,16,.6);
+  --surface-subtle:rgba(255,255,255,.04);
+  --surface-hover:rgba(255,53,242,.15);
+  --border-color:rgba(255,255,255,.14);
+  --border-subtle:rgba(255,255,255,.1);
   --container-max-w:1200px;
 }
