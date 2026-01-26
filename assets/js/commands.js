@@ -47,7 +47,7 @@ const HELP_OVERVIEW = pre([
   "Shortcuts:",
   "  g <q> | ddg <q> | yt <q> | r <sub> | hn",
   "",
-  "Tip: Anything else searches DuckDuckGo or opens URLs directly."
+  "Tip: Anything else searches th default search engine or opens URLs directly."
 ].join("\n"));
 function showModal(title, html, options = {}) {
   const overlay = document.createElement("div");
