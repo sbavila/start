@@ -28,6 +28,8 @@
           <li><a href="#" data-theme="cyan">cyan</a></li>
           <li><a href="#" data-theme="amber">amber</a></li>
           <li><a href="#" data-theme="lime">lime</a></li>
+          <li class="menu-divider" aria-hidden="true"></li>
+          <li><button class="menu-action" type="button" id="bookmark-manager-toggle" aria-controls="bookmark-manager" aria-expanded="false">Bookmark manager</button></li>
 
           <!-- Profiles will be injected here -->
           <li class="menu-divider" aria-hidden="true"></li>
@@ -45,13 +47,9 @@
 
       <!-- Main card: links + command bar -->
       <div class="maincard" role="region" aria-label="Startpage">
-        <div class="content">
-          <div id="links" class="links"></div>
-        </div>
-
         <div class="search" role="search">
           <form id="search-form" autocomplete="off">
-            <label for="search_box">&gt; find /</label>
+            <label for="search_box">. find /</label>
             <input
               type="text"
               id="search_box"
@@ -64,6 +62,57 @@
           </form>
           <small>Shell: <code>bm ls</code>, <code>ls bookmarks</code>, <code>cd &lt;profile&gt;</code>, <code>theme &lt;name&gt;</code>, <code>date</code>. Notes: <code>note</code>/<code>cat notes</code>/<code>rm notes</code></small>
           <div id="cmd-hints" role="listbox" aria-label="Command suggestions" style="display:none"></div>
+        </div>
+
+        <div class="content">
+          <section id="bookmark-manager" class="bookmark-manager" aria-label="Bookmark manager" hidden>
+            <h3 class="bookmark-manager-title">// bookmark manager</h3>
+            <p class="bookmark-manager-subtitle">Add, remove, or move bookmarks between groups.</p>
+            <div class="bookmark-grid">
+              <form id="bookmark-add-form" class="bookmark-card" autocomplete="off">
+                <h4>Add bookmark</h4>
+                <label for="bookmark-label">Label</label>
+                <input id="bookmark-label" name="bookmark-label" type="text" placeholder="Docs" required />
+                <label for="bookmark-url">URL</label>
+                <input id="bookmark-url" name="bookmark-url" type="url" placeholder="https://example.com" required />
+                <label for="bookmark-group">Group</label>
+                <input id="bookmark-group" name="bookmark-group" type="text" list="group-options" placeholder="Work" />
+                <button type="submit">Add</button>
+              </form>
+
+              <form id="bookmark-move-form" class="bookmark-card" autocomplete="off">
+                <h4>Move bookmark</h4>
+                <label for="bookmark-move-select">Bookmark</label>
+                <select id="bookmark-move-select" name="bookmark-move-select"></select>
+                <label for="bookmark-move-group">New group</label>
+                <input id="bookmark-move-group" name="bookmark-move-group" type="text" list="group-options" placeholder="Personal" />
+                <button type="submit">Move</button>
+              </form>
+
+              <form id="bookmark-edit-form" class="bookmark-card" autocomplete="off">
+                <h4>Edit bookmark</h4>
+                <label for="bookmark-edit-select">Bookmark</label>
+                <select id="bookmark-edit-select" name="bookmark-edit-select"></select>
+                <label for="bookmark-edit-label">Label</label>
+                <input id="bookmark-edit-label" name="bookmark-edit-label" type="text" placeholder="Docs" required />
+                <label for="bookmark-edit-url">URL</label>
+                <input id="bookmark-edit-url" name="bookmark-edit-url" type="url" placeholder="https://example.com" required />
+                <label for="bookmark-edit-group">Group</label>
+                <input id="bookmark-edit-group" name="bookmark-edit-group" type="text" list="group-options" placeholder="Work" />
+                <button type="submit">Save changes</button>
+              </form>
+
+              <form id="bookmark-remove-form" class="bookmark-card" autocomplete="off">
+                <h4>Remove bookmark</h4>
+                <label for="bookmark-remove-select">Bookmark</label>
+                <select id="bookmark-remove-select" name="bookmark-remove-select"></select>
+                <button type="submit">Remove</button>
+              </form>
+            </div>
+            <datalist id="group-options"></datalist>
+            <p id="bookmark-status" class="bookmark-status" role="status" aria-live="polite"></p>
+          </section>
+          <div id="links" class="links"></div>
         </div>
       </div>
     </div>
