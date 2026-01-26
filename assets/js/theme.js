@@ -32,7 +32,7 @@ export function initThemeLoader() {
       }
     });
     if (layoutLink?.parentNode) {
-      layoutLink.parentNode.insertBefore(link, layoutLink);
+      layoutLink.parentNode.insertBefore(link, layoutLink.nextSibling);
     } else {
       document.head.appendChild(link);
     }
